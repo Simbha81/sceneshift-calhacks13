@@ -15,7 +15,7 @@
 
 ## Still required
 - Demonstrate a backend change in two browsers without refresh.
-- Verify a hosted preview, mobile interaction, and map failure/retry behavior.
+- Verify hosted app behavior after owner sign-in, mobile interaction, and map failure/retry behavior. The hosting service confirmed the owner-private preview deployment succeeded; browser inspection reached its sign-in gate, not the app. See HOSTED_PREVIEW.md.
 - Implement protected idempotent import, Claude extraction/review, and moderator approval.
 - Record actual Figma design/prototype/handoff evidence; none was created in this change.
 

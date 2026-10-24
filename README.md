@@ -53,6 +53,8 @@ pnpm build
 ```
 See [verification and remaining checks](docs/FOUNDATION_VERIFICATION.md). A production bundle is available; hosted deployment and a real-event two-browser update still need verification.
 
+An [owner-private hosted preview](https://sceneshift-calhacks13-preview.simbhatia81.chatgpt.site) is deployed against the development backend. Hosted map behavior still needs checking after owner sign-in. See [deployment identity, update workflow, and remaining checks](docs/HOSTED_PREVIEW.md).
+
 To populate the development map with the first two manually reviewed market occurrences, run `npx convex dev --once` and then `npx convex run bootstrap:importReviewed '{}'`. Keep Vite open to observe the update. See [source notes and pin acceptance checks](docs/REVIEWED_EVENTS.md). This internal-only bootstrap is safe to rerun and is separate from the future Actor importer. These dated occurrences expire naturally.
 
 ## First integration milestone
