@@ -2,6 +2,7 @@ import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { reviewedEvents } from "../shared/reviewedEvents";
 import { isMapVisible } from "../src/lib/eventValidation";
+import { eventEnd } from "../src/lib/eventLifecycle";
 
 // Admin CLI/dashboard only. This is not the general Actor importer or moderation API.
 export const importReviewed = internalMutation({
@@ -18,10 +19,30 @@ export const importReviewed = internalMutation({
         .unique();
       // Preserve any subsequent edits or moderator decisions.
       if (found) { result.existing++; continue; }
-      await ctx.db.insert("events", event);
+      await ctx.db.insert("events", { ...event, mapEndsAt: eventEnd(event)!.timestamp });
       result.inserted++;
     }
     return result;
+  },
+});
+
+// Optional-first schema migration. Existing event content/status is preserved.
+// Repeat with the returned cursor until isDone; each transaction is bounded.
+export const backfillVisibility = internalMutation({
+  args: { cursor: v.union(v.string(), v.null()) },
+  returns: v.object({ updated: v.number(), continueCursor: v.string(), isDone: v.boolean() }),
+  handler: async (ctx, args) => {
+    const result = await ctx.db.query("events").withIndex("by_status_start")
+      .paginate({ cursor: args.cursor, numItems: 100 });
+    let updated = 0;
+    for (const event of result.page) {
+      const mapEndsAt = eventEnd(event)?.timestamp ?? null;
+      if (event.mapEndsAt !== mapEndsAt) {
+        await ctx.db.patch("events", event._id, { mapEndsAt });
+        updated++;
+      }
+    }
+    return { updated, continueCursor: result.continueCursor, isDone: result.isDone };
   },
 });
 

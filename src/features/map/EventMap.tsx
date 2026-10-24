@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import type { LocalEvent } from "../../lib/event";
 import { eventKey, hasCoordinates } from "../../lib/eventDisplay";
 import { DEFAULT_STYLE, loadMapLibre, SF_CENTER, type MapInstance } from "./maplibre";
+import { eventAvailability, eventPhase, eventStateLabel } from "../../lib/eventLifecycle";
 
-export function EventMap({ events, selected, onSelect }: {
-  events: LocalEvent[]; selected: LocalEvent | null; onSelect: (event: LocalEvent) => void;
+export function EventMap({ events, selected, onSelect, now }: {
+  events: LocalEvent[]; selected: LocalEvent | null; onSelect: (event: LocalEvent) => void; now: number;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const map = useRef<MapInstance | null>(null);
@@ -41,18 +42,26 @@ export function EventMap({ events, selected, onSelect }: {
       for (const event of events) {
         if (!hasCoordinates(event)) continue;
         const button = document.createElement("button");
-        button.type = "button"; button.className = "event-pin"; button.textContent = "●";
-        button.setAttribute("aria-label", `View ${event.title}`);
+        const phase = eventPhase(event, now);
+        const availability = eventAvailability(event, now);
+        button.type = "button"; button.className = "event-pin";
+        button.dataset.phase = phase; button.dataset.availability = availability;
+        button.textContent = availability === "sold-out" ? "×" : phase === "ending-soon" ? "◷" : "●";
+        const label = `View ${event.title} · ${eventStateLabel(event, now)}${availability === "sold-out" ? " · Reported sold out" : ""}`;
+        button.setAttribute("aria-label", label); button.title = label;
         button.setAttribute("aria-pressed", String(selected !== null && eventKey(event) === eventKey(selected)));
         button.addEventListener("click", () => onSelectRef.current(event));
         markers.push(new library.Marker({ element: button, anchor: "center" }).setLngLat([event.longitude, event.latitude]).addTo(map.current));
       }
     });
     return () => { cancelled = true; markers.forEach((marker) => marker.remove()); };
-  }, [events, ready, selected]);
+  }, [events, ready, selected, now]);
+  const selectedKey = selected ? eventKey(selected) : null;
+  const latitude = selected?.latitude;
+  const longitude = selected?.longitude;
   useEffect(() => {
-    if (ready && selected && hasCoordinates(selected)) map.current?.easeTo({ center: [selected.longitude, selected.latitude], zoom: 14 });
-  }, [selected, ready]);
+    if (ready && typeof latitude === "number" && typeof longitude === "number") map.current?.easeTo({ center: [longitude, latitude], zoom: 14 });
+  }, [selectedKey, latitude, longitude, ready]);
   function fitEvents() {
     const located = events.filter(hasCoordinates);
     if (located.length === 1) map.current?.easeTo({ center: [located[0].longitude, located[0].latitude], zoom: 14 });

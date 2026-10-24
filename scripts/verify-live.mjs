@@ -45,7 +45,7 @@ try {
   await waitFor(() => snapshots.every(rows => rows !== null), "both clients received initial query");
   target = snapshots[0].find(event => event.sourceType === "manual" &&
     ["foodwise:ferry-plaza:2026-10-24", "aim:clement:2026-10-25"].includes(event.sourceEventId));
-  if (!target) throw new Error("No future approved bootstrap occurrence is available; do not move dates forward");
+  if (!target) throw new Error("No unended approved bootstrap occurrence is available; do not move dates forward");
   if (!snapshots[1].some(event => event._id === target._id)) throw new Error("Initial client data differs");
   // Mark before the request: if a response is lost after commit, still restore.
   changed = true;

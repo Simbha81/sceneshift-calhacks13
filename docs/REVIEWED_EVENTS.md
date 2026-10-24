@@ -22,7 +22,7 @@ npx convex dev --once
 npx convex run bootstrap:importReviewed '{}'
 ```
 
-This internal mutation inserts only the two reviewed records, skips expired starts, and checks the indexed source identity before inserting. Repeating it preserves existing records and moderator decisions. It never clears a table. Do not add `--prod`; this bootstrap is intended for development verification.
+This internal mutation inserts only the two reviewed records, skips ended occurrences, and checks the indexed source identity before inserting. Repeating it preserves existing records and moderator decisions. It never clears a table. Do not add `--prod`; this bootstrap is intended for development verification. Ongoing events now remain through their end; see EVENT_LIFECYCLE.md.
 
 ## Acceptance check
 

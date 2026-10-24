@@ -40,7 +40,9 @@ pnpm dev
 ```
 Sign in to Convex and select the team/project. Convex writes local configuration to `.env.local`; never commit it. Use individual dev deployments unless deliberately coordinating shared test data. Without `VITE_CONVEX_URL`, the app shows an empty preview.
 
-The map includes zoom, fit-to-events, category selection, selectable pins, event details, and source links. It reads at most 100 future approved records with valid coordinates; ingestion must normalize timestamps to UTC ISO strings. No records are seeded. Import, extraction, and protected moderation remain unfinished.
+The map includes zoom, fit-to-events, category selection, selectable pins, event details, and source links. It reads at most 100 approved upcoming/ongoing records with valid coordinates, ordered by effective end time. Ingestion must normalize timestamps to UTC ISO strings and write `mapEndsAt` using `eventEnd(record).timestamp` in the same transaction whenever times change. Two manually reviewed market occurrences are available through the internal bootstrap. General import, extraction, and protected application moderation remain unfinished.
+
+Pins remain until the confirmed end, or an explicit estimated end. Missing/invalid ends use a clearly labeled three-hour estimate from the start; the final 30 minutes get an ending-soon symbol and amber styling. Recently sourced sold-out reports produce subdued, selectable pins instead of hiding them. Missing/stale ticket evidence stays unconfirmed. See [lifecycle rules](docs/EVENT_LIFECYCLE.md).
 
 MapLibre 6.15.0 loads from a pinned browser CDN because package downloads were unavailable in the managed development session. The default basemap uses public OSM tiles with attribution; set the optional public `VITE_MAP_STYLE_URL` to a MapLibre style URL to change providers. Confirm the selected tile provider's usage requirements before public deployment.
 

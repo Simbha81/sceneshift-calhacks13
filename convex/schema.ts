@@ -2,6 +2,7 @@ import { defineSchema, defineTable, type DataModelFromSchemaDefinition } from "c
 import { eventValidator } from "../src/lib/eventValidation";
 const schema = defineSchema({ events: defineTable(eventValidator)
   .index("by_status_start", ["status", "startAt"])
+  .index("by_status_and_mapEndsAt", ["status", "mapEndsAt"])
   .index("by_sourceType_and_sourceEventId", ["sourceType", "sourceEventId"]) });
 export default schema;
 export type DataModel = DataModelFromSchemaDefinition<typeof schema>;
