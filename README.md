@@ -25,6 +25,9 @@ The working task split:
 ## Shared event contract
 See `src/lib/event.ts`. Keep Actor output, transport, and Convex storage consistent. Preserve original listing URLs, source identifiers, moderation status, and uncertainty. Never fabricate dates, coordinates, prices, or attendance. The current contract does not yet include collection timestamps; add and document that field when implementing ingestion.
 
+## Development tools and API budget
+Simran and Natalie are using Codex for development. Claude remains the planned server-side flyer extraction API. Simran reports $50 in API credits; verify the active Console balance, restrictions/expiry, and one image request before considering access ready. A free Claude chat account and Console API access are separate. Preserve credits for the product integration and its tests.
+
 ## Starting the app
 This repository is a **coordination scaffold**, not a runnable application yet. Bootstrap React/TypeScript and Convex after agreeing on tool versions. Keep the shared event contract consistent across all layers. Add secrets only to platform environment variables, never commits.
 

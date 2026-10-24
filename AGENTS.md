@@ -22,6 +22,9 @@ Use docs/SPONSOR_TRACKS.md to distinguish official requirements, our engineering
 
 Record actual tool use and Figma stages during the build. Never fabricate tests, user feedback, model quality, or performance numbers. Preserve source URLs, timestamps, uncertainties, and real model results.
 
+## Development tools and Claude runtime
+Simran and Natalie are using Codex for development. Natalie reports Claude is not working for her development workflow. Keep Claude as the planned in-app flyer extraction API; using Codex to implement the app does not remove that role. Simran reports $50 in Claude API credits; confirm active balance, restrictions, and expiry in the Console and test a real image request before treating API access as verified. Never place an API key in chat, client code, or the repository.
+
 ## Implementation discipline
 The repository currently contains a coordination scaffold and shared event contract, not a runnable app. Verify actual status before reporting progress. Keep shared transport, Actor output, and Convex schema consistent. Never invent coordinates, dates, prices, or attendance. Track source retrieval time and deduplication identity; resolve the timestamp gap in the current transport contract when implementing ingestion.
 

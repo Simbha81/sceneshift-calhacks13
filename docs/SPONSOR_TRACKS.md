@@ -29,6 +29,8 @@ Current evidence: none implemented.
 Open: verify Best use of Apify and Best Actor requirements, submission visibility, entry method, and deadlines.
 
 ### Claude
+Development tools: Simran and Natalie use Codex. Simran reports $50 in Claude API credits; active balance, expiry/restrictions, and a successful image request remain unverified. The chat plan is separate from API access. Official billing/account references: https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage and https://support.claude.com/en/articles/8987223-can-i-have-a-claude-account-and-a-console-account .
+
 Role: turn a flyer into a reviewable event that can be published to the map.
 - Real server-side Claude extraction from the uploaded image; preserve original flyer.
 - Editable structured details, explicit missing/ambiguous fields, and no invented data.
