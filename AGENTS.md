@@ -26,9 +26,12 @@ Record actual tool use and Figma stages during the build. Never fabricate tests,
 Simran and Natalie are using Codex for development. Natalie reports Claude is not working for her development workflow. Keep Claude as the planned in-app flyer extraction API; using Codex to implement the app does not remove that role. Simran reports $50 in Claude API credits; confirm active balance, restrictions, and expiry in the Console and test a real image request before treating API access as verified. Never place an API key in chat, client code, or the repository.
 
 ## Implementation discipline
-The repository currently contains a coordination scaffold and shared event contract, not a runnable app. Verify actual status before reporting progress. Keep shared transport, Actor output, and Convex schema consistent. Never invent coordinates, dates, prices, or attendance. Track source retrieval time and deduplication identity; resolve the timestamp gap in the current transport contract when implementing ingestion.
+The React/Vite + MapLibre foundation runs locally against the Convex approved-events query. The database is empty; real pins, ingestion, two-session updates, and hosted deployment remain unverified. Verify actual status before reporting progress. Keep shared transport, Actor output, and Convex schema consistent. Never invent coordinates, dates, prices, or attendance. Track source retrieval time and deduplication identity; resolve the timestamp gap in the current transport contract when implementing ingestion.
 
 Keep secrets server-side and out of commits. Follow the team ownership and PR workflow. New PRs must state their scope milestone, sponsor contribution, evidence, and blockers.
 
 ## Timing
 The official Devpost overview checked October 23, 2026 lists submission October 25 at 9:00 AM Pacific. Do not use Sunday afternoon as the code/submission deadline. Recheck official announcements for sponsor-specific deadlines and any changes.
+
+
+When working on Convex code, read `convex/_generated/ai/guidelines.md` first. Run `npx convex ai-files install` if guidelines or `.agents/skills` are missing.

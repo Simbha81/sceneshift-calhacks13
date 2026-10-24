@@ -29,9 +29,33 @@ See `src/lib/event.ts`. Keep Actor output, transport, and Convex storage consist
 Simran and Natalie are using Codex for development. Claude remains the planned server-side flyer extraction API. Simran reports $50 in API credits; verify the active Console balance, restrictions/expiry, and one image request before considering access ready. A free Claude chat account and Console API access are separate. Preserve credits for the product integration and its tests.
 
 ## Starting the app
-This repository is a **coordination scaffold**, not a runnable application yet. Bootstrap React/TypeScript and Convex after agreeing on tool versions. Keep the shared event contract consistent across all layers. Add secrets only to platform environment variables, never commits.
+React + TypeScript + Vite, Convex, and MapLibre GL JS are implemented locally. MapLibre renders the SF map; OpenStreetMap supplies the prototype basemap. Figma supports design and handoff alongside implementation.
 
-Planned stack: React + TypeScript (choose Vite or Next.js together), Convex, a map library, Claude API through server-side actions, and the custom Apify Actor/importer. Frontend framework, map provider, and deployment provider still need a concrete selection.
+Requires Node 22.12+ and pnpm 11:
+```sh
+pnpm install --frozen-lockfile
+pnpm dev:backend
+# In a second terminal:
+pnpm dev
+```
+Sign in to Convex and select the team/project. Convex writes local configuration to `.env.local`; never commit it. Use individual dev deployments unless deliberately coordinating shared test data. Without `VITE_CONVEX_URL`, the app shows an empty preview.
+
+The map includes zoom, fit-to-events, category selection, selectable pins, event details, and source links. It reads at most 100 approved upcoming/ongoing records with valid coordinates, ordered by effective end time. Ingestion must normalize timestamps to UTC ISO strings and write `mapEndsAt` using `eventEnd(record).timestamp` in the same transaction whenever times change. Two manually reviewed market occurrences are available through the internal bootstrap. General import, extraction, and protected application moderation remain unfinished.
+
+Pins remain until the confirmed end, or an explicit estimated end. Missing/invalid ends use a clearly labeled three-hour estimate from the start; the final 30 minutes get an ending-soon symbol and amber styling. Recently sourced sold-out reports produce subdued, selectable pins instead of hiding them. Missing/stale ticket evidence stays unconfirmed. See [lifecycle rules](docs/EVENT_LIFECYCLE.md).
+
+MapLibre 6.15.0 loads from a pinned browser CDN because package downloads were unavailable in the managed development session. The default basemap uses public OSM tiles with attribution; set the optional public `VITE_MAP_STYLE_URL` to a MapLibre style URL to change providers. Confirm the selected tile provider's usage requirements before public deployment.
+
+```sh
+pnpm typecheck
+pnpm test
+pnpm build
+```
+See [verification and remaining checks](docs/FOUNDATION_VERIFICATION.md). A production bundle is available; hosted deployment and a real-event two-browser update still need verification.
+
+An [owner-private hosted preview](https://sceneshift-calhacks13-preview.simbhatia81.chatgpt.site) is deployed against the development backend. Hosted map behavior still needs checking after owner sign-in. See [deployment identity, update workflow, and remaining checks](docs/HOSTED_PREVIEW.md).
+
+To populate the development map with the first two manually reviewed market occurrences, run `npx convex dev --once` and then `npx convex run bootstrap:importReviewed '{}'`. Keep Vite open to observe the update. See [source notes and pin acceptance checks](docs/REVIEWED_EVENTS.md). This internal-only bootstrap is safe to rerun and is separate from the future Actor importer. These dated occurrences expire naturally.
 
 ## First integration milestone
 - Deployed map reads Convex fixtures to prove the foundation; replace/augment with real sourced events for the final demo.

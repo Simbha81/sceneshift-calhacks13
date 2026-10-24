@@ -10,6 +10,8 @@ export interface LocalEvent {
   description: string;
   startAt: string; // UTC ISO-8601; only if positively determined
   endAt?: string | null;
+  estimatedEndAt?: string | null; // Explicit estimate, never presented as a confirmed end.
+  mapEndsAt?: number | null; // Derived storage index; recompute whenever event times change.
   timezone: string; // IANA zone
   venueName?: string | null;
   address?: string | null;
@@ -23,4 +25,7 @@ export interface LocalEvent {
   sourceEventId?: string | null;
   status: ModerationStatus;
   verified: boolean;
+  availability?: 'unknown' | 'available' | 'sold-out';
+  availabilitySourceUrl?: string | null;
+  availabilityCheckedAt?: string | null; // UTC ISO timestamp of an actual source check.
 }
