@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as bootstrap from "../bootstrap.js";
 import type * as events from "../events.js";
 import type * as lib_server from "../lib/server.js";
 
@@ -18,6 +19,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  bootstrap: typeof bootstrap;
   events: typeof events;
   "lib/server": typeof lib_server;
 }>;

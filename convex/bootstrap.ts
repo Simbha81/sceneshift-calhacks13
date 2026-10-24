@@ -24,3 +24,29 @@ export const importReviewed = internalMutation({
     return result;
   },
 });
+
+// Admin-only acceptance-test helper. Restricted to the two bootstrap identities;
+// this is not an application moderator endpoint. Compare state to avoid
+// overwriting a concurrent review decision.
+export const setReviewStatus = internalMutation({
+  args: {
+    sourceEventId: v.string(),
+    expectedStatus: v.union(v.literal("approved"), v.literal("pending")),
+    status: v.union(v.literal("approved"), v.literal("pending")),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    if (!reviewedEvents.some(event => event.sourceEventId === args.sourceEventId)) {
+      throw new Error("Only reviewed bootstrap records may be used for this check");
+    }
+    const event = await ctx.db.query("events")
+      .withIndex("by_sourceType_and_sourceEventId", q =>
+        q.eq("sourceType", "manual").eq("sourceEventId", args.sourceEventId))
+      .unique();
+    if (!event) throw new Error("Bootstrap record not found");
+    if (event.status === args.status) return null;
+    if (event.status !== args.expectedStatus) throw new Error("Review status changed; check cancelled");
+    await ctx.db.patch("events", event._id, { status: args.status });
+    return null;
+  },
+});

@@ -3,7 +3,7 @@
 ## Team intent
 Win every track we enter, including Claude's. Each integration must solve a real product need, be shown in the working demo, and satisfy the exact challenge we apply for. This file is the durable checkpoint for coding assistants and teammates.
 
-Status October 24: local React/Vite + MapLibre foundation renders the SF basemap and reads the connected Convex approved-events query. Database is empty. Real event pins, two-session updates, ingestion, Claude extraction, and Figma workflow evidence remain unverified.
+Status October 24: local React/Vite + MapLibre foundation renders the SF basemap and reads the connected Convex approved-events query. Two manually reviewed recurring market occurrences were imported. Simran confirmed pin/card selection, details/source links, category filtering, and Fit events work. Repeat-bootstrap duplicate prevention and live status changes in two independent SDK subscription clients passed. Browser-specific two-session verification, Actor ingestion, Claude extraction, hosted deployment, and Figma workflow evidence remain outstanding.
 
 ## Sources and verification
 - Official event overview: https://cal-hacks-13-0.devpost.com/ (checked October 23, 2026).
@@ -47,7 +47,7 @@ Role: shared event state, ingestion, review, approval, and reactive map delivery
 - Public browsing requires no personalized account; moderator/import authorization remains protected.
 - Approval produces a live pin in another browser without manual refresh.
 Evidence to retain: schema/function links, duplicate-import test, unauthorized-approval test, and two-session demo.
-Current evidence: local schema and bounded approved-events query implemented; browser query resolves successfully. No write workflow or two-session publication evidence yet.
+Current evidence: schema, bounded approved-events query, and internal-only bootstrap implemented; two records appeared after import, and Simran confirmed the map interactions work. Repeat bootstrap inserted zero new records. Two independent public SDK clients observed removal on pending status and reappearance on restored approval without refresh. The general importer and protected application moderator workflow are not implemented; the status changes used an admin-only helper restricted to the bootstrap records. Browser-specific two-session publication still needs demonstration.
 Open: exact Best use of Convex criteria and entry requirements.
 
 ### Figma
