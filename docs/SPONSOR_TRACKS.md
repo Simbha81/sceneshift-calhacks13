@@ -3,7 +3,7 @@
 ## Team intent
 Win every track we enter, including Claude's. Each integration must solve a real product need, be shown in the working demo, and satisfy the exact challenge we apply for. This file is the durable checkpoint for coding assistants and teammates.
 
-Status at this documentation review: coordination scaffold only. No implemented integration or passing evidence is asserted.
+Status October 24: local React/Vite + MapLibre foundation renders the SF basemap and reads the connected Convex approved-events query. Database is empty. Real event pins, two-session updates, ingestion, Claude extraction, and Figma workflow evidence remain unverified.
 
 ## Sources and verification
 - Official event overview: https://cal-hacks-13-0.devpost.com/ (checked October 23, 2026).
@@ -47,7 +47,7 @@ Role: shared event state, ingestion, review, approval, and reactive map delivery
 - Public browsing requires no personalized account; moderator/import authorization remains protected.
 - Approval produces a live pin in another browser without manual refresh.
 Evidence to retain: schema/function links, duplicate-import test, unauthorized-approval test, and two-session demo.
-Current evidence: none implemented.
+Current evidence: local schema and bounded approved-events query implemented; browser query resolves successfully. No write workflow or two-session publication evidence yet.
 Open: exact Best use of Convex criteria and entry requirements.
 
 ### Figma
