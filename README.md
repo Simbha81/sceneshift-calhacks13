@@ -77,7 +77,7 @@ EventPulse's internal sync and public approved-event read query are implemented 
 
 ## Flyer submission and review
 
-The flyer flow uploads the original image to Convex file storage, creates a `pending`, `verified: false` event using the shared contract in `src/lib/event.ts` with `sourceType: "flyer"`, and schedules Claude extraction. The source image storage ID and any unresolved fields remain attached to the event. Drafts stay out of `events:listApproved` and the map until an authorized reviewer approves them. Venue matches are limited to the checked local list in `convex/missionVenues.ts`; unrecognized venues need reviewer-confirmed coordinates.
+The flyer flow uploads the original image to Convex file storage, creates a `pending`, `verified: false` event using the shared contract in `src/lib/event.ts` with `sourceType: "flyer"`, and schedules Claude extraction. The source image storage ID and any unresolved fields remain attached to the event. Drafts stay out of `events:listApproved` and the map until an authorized reviewer approves them. Venue matches are limited to the checked local list in `convex/missionVenues.ts`; unrecognized venues use reviewer-only U.S. Census address lookup or a tap-to-place map pin. Address matches are approximate and require location confirmation before approval; street fairs can use a reviewer-selected entrance or meeting point. No geocoder API key is needed.
 
 ### Configure the Convex deployment
 
@@ -93,7 +93,7 @@ Convex environment variables are set per deployment. The dashboard and interacti
 1. With the repo checked out on this feature branch, set `VITE_CONVEX_URL` in your local `.env.local`, then run `pnpm install --frozen-lockfile` and `pnpm dev`.
 2. In **Share an event flyer**, choose one JPEG, PNG, WebP, or GIF image under 5 MB and submit it.
 3. Open **Reviewer access**, enter the authorized moderator token, and load the queue. The original image, extraction status, missing fields, and editable draft appear there.
-4. Correct any uncertain information. Confirm venue coordinates; approve only when the required details and all uncertainty flags are resolved. Rejected events remain unpublished.
+4. Correct any uncertain information. Use **Find address**, select a match, and check its pin; or zoom in and tap the map to place the pin. Confirm the event location; approve only when the required details and all uncertainty flags are resolved. Rejected events remain unpublished.
 5. Check the map: only a future approved event with confirmed coordinates appears.
 
 The sample Head West flyer supplied with the task prints “Sunday, November 1st” and “11AM” but no year. Claude should leave the date unresolved. Enter a year only after confirming it from the organizer or another reliable source.

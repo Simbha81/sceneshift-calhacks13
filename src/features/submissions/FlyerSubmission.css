@@ -22,3 +22,10 @@
 .flyer-queue-heading{display:flex;align-items:center;justify-content:space-between;gap:.75rem}.flyer-queue-heading h3{margin:0}.flyer-queue-heading button{border:1px solid #075f70;border-radius:.55rem;padding:.55rem .8rem;background:#fff;color:#075f70;font-weight:700;cursor:pointer}
 .flyer-occurrences{display:grid;gap:.65rem;padding:.85rem;border:1px solid #c5d4d9;border-radius:.7rem;background:#fff}.flyer-occurrences-heading,.flyer-occurrence-heading{display:flex;align-items:center;justify-content:space-between;gap:.75rem}.flyer-occurrences-heading>div{display:grid;gap:.2rem}.flyer-occurrences-heading small{max-width:48rem}.flyer-occurrences-heading button,.flyer-occurrence-heading button{border:1px solid #075f70;border-radius:.55rem;padding:.5rem .75rem;background:#fff;color:#075f70;font-weight:700;cursor:pointer}.flyer-occurrence{display:grid;gap:.6rem;padding:.75rem;border:1px solid #d6e0e4;border-radius:.6rem;background:#f6f9f9}.flyer-occurrence-heading strong{font-size:.9rem}
 .flyer-editable-fields{display:grid;gap:.7rem;min-width:0;margin:0;padding:0;border:0}.flyer-editable-fields:disabled{opacity:.72}.flyer-editable-fields:disabled input,.flyer-editable-fields:disabled textarea,.flyer-editable-fields:disabled select{cursor:wait}
+
+.flyer-location-picker { display: grid; gap: 10px; min-width: 0; }
+.flyer-location-picker p { margin: 0; }
+.flyer-location-picker .flyer-location-map { height: 260px; width: 100%; border-radius: 14px; overflow: hidden; border: 1px solid #c9d4cf; }
+.flyer-location-pin { font-size: 34px; line-height: 1; cursor: crosshair; }
+.flyer-location-picker .flyer-address-match { text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.flyer-location-picker small { font-size: 11px; line-height: 1.5; opacity: .8; }

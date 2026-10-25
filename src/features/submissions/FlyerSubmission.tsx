@@ -3,7 +3,8 @@ import { useAction, useMutation } from "convex/react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { CATEGORY_LABELS } from "../../lib/eventDisplay";
 import { generateFlyerUploadUrl, listPendingFlyers, reviewFlyer, submitFlyer, updateFlyerDraft, type FlyerDraft, type FlyerOccurrence } from "../../lib/api";
-import { reviewValuesFromDraft, syncReviewValues } from "./flyerDraftState";
+import { clearLocationReview, publicationIssue, reviewValuesFromDraft, syncReviewValues } from "./flyerDraftState";
+import { FlyerLocationPicker } from "./FlyerLocationPicker";
 import "./FlyerSubmission.css";
 
 export function FlyerSubmission() {
@@ -84,7 +85,7 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
   }, [draft]);
   function field<K extends "title" | "description" | "venueName" | "address" | "category" | "latitude" | "longitude">(key: K, value: string) {
     dirty.current = true;
-    setValues(v => ({ ...v, [key]: value }));
+    setValues(v => ({ ...(key === "address" || key === "venueName" ? clearLocationReview(v, true) : v), [key]: value }));
   }
   function occurrenceField(index: number, key: keyof FlyerOccurrence, value: string) {
     dirty.current = true;
@@ -117,8 +118,11 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
     finally { setBusy(false); }
   }
   async function decide(decision: "approved" | "rejected") {
+    if (decision === "approved") {
+      const issue = publicationIssue(values);
+      if (issue) { setNotice(issue); return; }
+    }
     if (!await save()) return;
-    if (decision === "approved" && !values.reviewedFields.includes("venueCoordinates")) { setNotice("Confirm that the coordinates point to the venue."); return; }
     setBusy(true);
     try { await review({ moderatorToken: token, submissionId: draft._id, decision }); setNotice(decision === "approved" ? "Approved and published." : "Rejected."); }
     catch (error) { setNotice(error instanceof Error ? error.message : "Review action failed."); }
@@ -160,9 +164,12 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
           {Object.entries(CATEGORY_LABELS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label></div>
       <label>Venue name<input value={values.venueName} onChange={e => field("venueName", e.target.value)} /></label>
       <label>Street address<input value={values.address} onChange={e => field("address", e.target.value)} /></label>
-      <div className="flyer-grid"><label>Latitude<input inputMode="decimal" value={values.latitude} onChange={e => field("latitude", e.target.value)} /></label>
-        <label>Longitude<input inputMode="decimal" value={values.longitude} onChange={e => field("longitude", e.target.value)} /></label></div>
-      <label className="flyer-location-confirm"><input type="checkbox" checked={values.reviewedFields.includes("venueCoordinates")} onChange={() => markReviewed("venueCoordinates")} /> I confirm the coordinates point to this venue.</label>
+      <FlyerLocationPicker address={values.address} token={token} disabled={busy || extractionPending}
+        point={values.latitude && values.longitude ? { latitude: Number(values.latitude), longitude: Number(values.longitude) } : null}
+        onSelect={point => { dirty.current = true; setValues(v => ({ ...clearLocationReview(v, false), latitude: String(point.latitude), longitude: String(point.longitude) })); }} />
+      <label className="flyer-location-confirm"><input type="checkbox" disabled={!values.latitude || !values.longitude}
+        checked={values.reviewedFields.includes("venueCoordinates") && !!values.latitude && !!values.longitude}
+        onChange={event => { if (event.target.checked) markReviewed("venueCoordinates"); else { dirty.current = true; setValues(v => clearLocationReview(v, false)); } }} /> I confirm the pin marks this event's location.</label>
       <div className="flyer-actions"><button type="button" onClick={save} disabled={busy}>Save corrections</button>
         <button type="button" className="flyer-approve" onClick={() => decide("approved")} disabled={busy}>Approve and publish</button>
         <button type="button" className="flyer-reject" onClick={() => decide("rejected")} disabled={busy}>Reject</button></div>

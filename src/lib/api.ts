@@ -20,4 +20,6 @@ export const generateFlyerUploadUrl = makeFunctionReference<"mutation", Record<s
 export const submitFlyer = makeFunctionReference<"mutation", { storageId: Id<"_storage"> }, Id<"flyerSubmissions">>("flyerSubmissions:submit");
 export const listPendingFlyers = makeFunctionReference<"action", { moderatorToken: string }, FlyerDraft[]>("flyerReview:listPending");
 export const updateFlyerDraft = makeFunctionReference<"action", { moderatorToken: string; submissionId: Id<"flyerSubmissions"> } & DraftFields, null>("flyerReview:updateDraft");
+export type FlyerAddressMatch = { label: string; latitude: number; longitude: number };
+export const lookupFlyerAddress = makeFunctionReference<"action", { moderatorToken: string; address: string }, FlyerAddressMatch[]>("flyerReview:lookupAddress");
 export const reviewFlyer = makeFunctionReference<"action", { moderatorToken: string; submissionId: Id<"flyerSubmissions">; decision: "approved" | "rejected" }, null>("flyerReview:review");
