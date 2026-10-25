@@ -26,6 +26,16 @@ function addUnresolved(values: string[], key: string) {
 function normalizeText(value: string | null, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max) : null;
 }
+function validDate(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  return month >= 1 && month <= 12 && day >= 1 && day <= 31 && new Date(Date.UTC(year, month - 1, day)).toISOString().slice(0, 10) === value;
+}
+function validTime(value: unknown): value is string {
+  if (typeof value !== "string" || !/^\\d{2}:\\d{2}$/.test(value)) return false;
+  const [hour, minute] = value.split(":").map(Number);
+  return hour <= 23 && minute <= 59;
+}
 function asLocalIso(date: string | null, time: string | null): string | null {
   if (!date || !time || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{2}:\d{2}$/.test(time)) return null;
   const [y, m, d] = date.split("-").map(Number);
@@ -277,7 +287,8 @@ export const reviewInternal = internalMutation({
           row.latitude === null || row.longitude === null || row.unresolvedFields.length > 0 || !row.reviewedFields.includes("venueCoordinates")) {
         throw new Error("Resolve or explicitly review every uncertainty and confirm a mappable location before approval");
       }
-      const startAt = toUtc(asLocalIso(row.date, row.startTime)!);
+      const startLocal = asLocalIso(row.date, row.startTime);
+      const startAt = startLocal ? toUtc(startLocal) : null;
       if (!startAt) throw new Error("Enter a valid date and start time.");
       const candidate = { ...eventPatch(row), startAt, status: "approved" as const, verified: true };
       if (!isMapVisible(candidate, Date.now())) throw new Error("Event timing or coordinates are not valid for the map.");
