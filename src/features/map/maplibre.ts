@@ -4,6 +4,7 @@ const moduleUrl = `https://unpkg.com/maplibre-gl@${version}/dist/maplibre-gl.mjs
 export type Coordinates = [number, number];
 export interface MapInstance {
   remove(): void;
+  getZoom(): number;
   on(event: "click", callback: (event: { lngLat: { lat: number; lng: number } }) => void): void;
   on(event: string, callback: () => void): void;
   addControl(control: unknown, position: string): void;
