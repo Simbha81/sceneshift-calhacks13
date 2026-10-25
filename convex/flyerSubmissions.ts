@@ -305,8 +305,8 @@ export const updateDraft = action({
     unresolvedFields: v.array(v.string()), reviewedFields: v.array(v.string()) },
   returns: v.null(),
   handler: async (ctx, args) => {
-    checkModerator(args.moderatorToken);
-    const { moderatorToken: _token, ...input } = args;
+    const { moderatorToken, ...input } = args;
+    checkModerator(moderatorToken);
     return await ctx.runMutation(internal.flyerSubmissions.updateDraftInternal, input);
   },
 });
@@ -314,8 +314,8 @@ export const review = action({
   args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"), decision: v.union(v.literal("approved"), v.literal("rejected")) },
   returns: v.null(),
   handler: async (ctx, args) => {
-    checkModerator(args.moderatorToken);
-    const { moderatorToken: _token, submissionId, decision } = args;
+    const { moderatorToken, submissionId, decision } = args;
+    checkModerator(moderatorToken);
     return await ctx.runMutation(internal.flyerSubmissions.reviewInternal, { submissionId, decision });
   },
 });
