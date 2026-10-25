@@ -27,12 +27,12 @@ function normalizeText(value: string | null, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max) : null;
 }
 function validDate(value: unknown): value is string {
-  if (typeof value !== "string" || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [year, month, day] = value.split("-").map(Number);
   return month >= 1 && month <= 12 && day >= 1 && day <= 31 && new Date(Date.UTC(year, month - 1, day)).toISOString().slice(0, 10) === value;
 }
 function validTime(value: unknown): value is string {
-  if (typeof value !== "string" || !/^\\d{2}:\\d{2}$/.test(value)) return false;
+  if (typeof value !== "string" || !/^\d{2}:\d{2}$/.test(value)) return false;
   const [hour, minute] = value.split(":").map(Number);
   return hour <= 23 && minute <= 59;
 }
