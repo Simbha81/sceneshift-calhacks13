@@ -247,7 +247,7 @@ export const listPendingInternal = internalQuery({
 });
 
 export const updateDraftInternal = internalMutation({
-  args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"),
+  args: { submissionId: v.id("flyerSubmissions"),
     title: nullableText, description: nullableText, date: nullableText, startTime: nullableText, endTime: nullableText,
     venueName: nullableText, address: nullableText, category: v.union(category, v.null()),
     latitude: v.union(v.number(), v.null()), longitude: v.union(v.number(), v.null()),
@@ -258,7 +258,7 @@ export const updateDraftInternal = internalMutation({
     if (!row || row.status !== "pending") throw new Error("Pending flyer was not found");
     if (args.latitude !== null && (!Number.isFinite(args.latitude) || args.latitude < -90 || args.latitude > 90)) throw new Error("Invalid latitude");
     if (args.longitude !== null && (!Number.isFinite(args.longitude) || args.longitude < -180 || args.longitude > 180)) throw new Error("Invalid longitude");
-    const { moderatorToken: _token, submissionId, ...values } = args;
+    const { submissionId, ...values } = args;
     await ctx.db.patch(submissionId, values);
     const fresh = { ...row, ...values };
     if (fresh.eventId) await ctx.db.patch(fresh.eventId, { ...eventPatch(fresh), sourceEventId: String(submissionId) });
@@ -267,7 +267,7 @@ export const updateDraftInternal = internalMutation({
 });
 
 export const reviewInternal = internalMutation({
-  args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"), decision: v.union(v.literal("approved"), v.literal("rejected")) },
+  args: { submissionId: v.id("flyerSubmissions"), decision: v.union(v.literal("approved"), v.literal("rejected")) },
   returns: v.null(),
   handler: async (ctx, args) => {
     const row = await ctx.db.get(args.submissionId);
@@ -306,7 +306,8 @@ export const updateDraft = action({
   returns: v.null(),
   handler: async (ctx, args) => {
     checkModerator(args.moderatorToken);
-    return await ctx.runMutation(internal.flyerSubmissions.updateDraftInternal, args);
+    const { moderatorToken: _token, ...input } = args;
+    return await ctx.runMutation(internal.flyerSubmissions.updateDraftInternal, input);
   },
 });
 export const review = action({
@@ -314,6 +315,7 @@ export const review = action({
   returns: v.null(),
   handler: async (ctx, args) => {
     checkModerator(args.moderatorToken);
-    return await ctx.runMutation(internal.flyerSubmissions.reviewInternal, args);
+    const { moderatorToken: _token, submissionId, decision } = args;
+    return await ctx.runMutation(internal.flyerSubmissions.reviewInternal, { submissionId, decision });
   },
 });
