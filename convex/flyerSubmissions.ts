@@ -254,7 +254,6 @@ export const reviewInternal = internalMutation({
   args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"), decision: v.union(v.literal("approved"), v.literal("rejected")) },
   returns: v.null(),
   handler: async (ctx, args) => {
-    checkModerator(args.moderatorToken);
     const row = await ctx.db.get(args.submissionId);
     if (!row || row.status !== "pending" || !row.eventId) throw new Error("Pending flyer was not found");
     if (args.decision === "approved") {
