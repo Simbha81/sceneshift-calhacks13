@@ -98,7 +98,7 @@ export function SceneShiftShell({ events, loading, connected, now, addSlot }: Sc
     setSaved(next);
     if (tab === "saved") setSeen(next);
   }
-  function showOnMap(event: LocalEvent) { setCategory("all"); setSelectedKey(eventKey(event)); setSheetOpen(true); setTab("map"); }
+  function showOnMap(event: LocalEvent) { setLayer("events"); setCategory("all"); setSelectedKey(eventKey(event)); setSheetOpen(true); setTab("map"); }
   function saveRating(key: string, stars: number, tags: string[]) {
     const rest = ratings.filter(item => !item.startsWith(`${key}::`));
     setRatings(stars > 0 ? [...rest, `${key}::${stars}::${tags.join(",")}`] : rest);
@@ -163,7 +163,7 @@ export function SceneShiftShell({ events, loading, connected, now, addSlot }: Sc
       <div className="ss-map" data-heat={heat} data-layer={layer}><EventMap events={layer === "events" ? visible : []} selected={selected} onSelect={event => { setSelectedKey(eventKey(event)); setSheetOpen(true); }} now={now} /><Weather /></div>
       <aside className="ss-sheet" data-open={sheetOpen} aria-live="polite">
         <button type="button" className="sb ss-grab" aria-expanded={sheetOpen} onClick={() => setSheetOpen(open => !open)}>
-          <span className="ss-grab-bar" aria-hidden="true" /><span>{layer === "spots" ? "Photo and sunset spots" : selected ? selected.title : "Trending events right now"}</span><span aria-hidden="true">{sheetOpen ? "Hide ▾" : "Show ▴"}</span>
+          <span className="ss-grab-bar" aria-hidden="true" /><span>{layer === "spots" ? "Photo and sunset spots" : selected ? selected.title : "Upcoming and happening"}</span><span aria-hidden="true">{sheetOpen ? "Hide ▾" : "Show ▴"}</span>
         </button>
         {sheetOpen && (layer === "spots" ? <div><p className="ss-note"><span className="ss-concept">Sample</span> Spots are a concept preview. Pins for spots come later; here are example places.</p>
           <div className="ss-hs ss-flush">{SAMPLE_SPOTS.map(spot => <SpotCard key={spot.name} spot={spot} photo={photoProps(`spot:${spot.name}`)} />)}</div></div> : selected ? <div className="ss-detail">
@@ -181,7 +181,7 @@ export function SceneShiftShell({ events, loading, connected, now, addSlot }: Sc
     </section>
 
     <section className="ss-tab ss-scroll" hidden={tab !== "discover"} aria-label="Discover">
-      <div className="ss-pgh"><div><h1>Discover</h1><p>Search, tune your niche, plan a night</p></div></div>
+      <div className="ss-pgh"><div><h1>Discover</h1><p>Search, tune your niche, find events</p></div></div>
       <label className="ss-sbar"><Svg d={ICONS.discover} size={18} />
         <input type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search events, venues, scenes…" aria-label="Search events" /></label>
       <div className="ss-hs" role="group" aria-label="Search suggestions">
@@ -196,21 +196,21 @@ export function SceneShiftShell({ events, loading, connected, now, addSlot }: Sc
           <button type="button" className="sb ss-nc ss-more" aria-expanded={moreNiches} onClick={() => setMoreNiches(open => !open)}>
             <span className="ss-em ss-em-more"><span aria-hidden="true">•••</span></span>{moreNiches ? "Show less" : "More"}</button>
         </div>
-        <div className="ss-sec"><h2>{niche ? `Picked for ${niche.label}` : "Trending events right now"}</h2>
+        <div className="ss-sec"><h2>{niche ? `Picked for ${niche.label}` : "Upcoming and happening"}</h2>
           <p className="ss-sub">{niche ? `${niche.why}. Tap a card to see it on the map.` : "Choose a niche above to personalize this list."}</p>
           {(niche ? nicheEvents : byNext(live)).slice(0, niche ? 6 : 3).map(event => <EventRow key={eventKey(event)} {...rowProps(event)} />)}
           {live.length === 0 && <p className="ss-note">No live events yet.</p>}
           {niche && nicheEvents.length === 0 && live.length > 0 && <p className="ss-note">No live events match this niche right now.</p>}</div>
-        <div className="ss-sec"><h2>Plan my night</h2><p className="ss-sub">Two taps. Matches real listings by scene and price.</p>
+        <div className="ss-sec"><h2>Find events</h2><p className="ss-sub">Two taps. Matches real listings by scene and price.</p>
           <div className="ss-card">
-            {!plan.energy ? <><h3>Energy tonight?</h3><div className="ss-opts">
+            {!plan.energy ? <><h3>Choose an energy</h3><div className="ss-opts">
               <button type="button" className="sb ss-opt" style={{ background: "#CFE6BE" }} onClick={() => setPlan({ energy: "chill" })}>Chill<small>Easy and mellow</small></button>
               <button type="button" className="sb ss-opt" style={{ background: "#FFC9C2" }} onClick={() => setPlan({ energy: "lively" })}>Lively<small>Loud and social</small></button></div></>
             : !plan.budget ? <><h3>Budget?</h3><div className="ss-opts">
               <button type="button" className="sb ss-opt" style={{ background: "#CFE6BE" }} onClick={() => setPlan({ ...plan, budget: "free" })}>Free only<small>Listed as free</small></button>
               <button type="button" className="sb ss-opt" style={{ background: "#FFE7A6" }} onClick={() => setPlan({ ...plan, budget: "any" })}>Any price<small>Show everything</small></button></div></>
-            : <><h3>Your night: {plan.energy} · {plan.budget === "free" ? "free" : "any price"}</h3>
-              {planned.length === 0 ? <p className="ss-note">Nothing live matches yet. Try different answers.</p> : planned.map(event => <EventRow key={eventKey(event)} {...rowProps(event)} />)}
+            : <><h3>Your picks: {plan.energy} · {plan.budget === "free" ? "free" : "any price"}</h3>
+              {planned.length === 0 ? <p className="ss-note">No listings match yet. Try different answers.</p> : planned.map(event => <EventRow key={eventKey(event)} {...rowProps(event)} />)}
               <button type="button" className="sb ss-primary" onClick={() => setPlan({})}>Start over</button></>}
           </div></div>
         <div className="ss-sec"><h2>Find friends <span className="ss-concept">Sample</span></h2><p className="ss-sub">Concept preview. There are no accounts yet, so these are example people.</p></div>

@@ -4,8 +4,8 @@ import type { EventCategory } from "../../lib/event";
 export type Niche = { key: string; label: string; icon: EventCategory; categories: EventCategory[]; why: string };
 export const NICHES: Niche[] = [
   { key: "student", label: "Student", icon: "learning-hobbies", categories: ["learning-hobbies", "community-causes"], why: "Learning, workshops and community events" },
-  { key: "family", label: "Family", icon: "community-causes", categories: ["community-causes", "festivals-other", "sports-outdoors"], why: "Good for families and groups" },
-  { key: "night", label: "21+ Night", icon: "music-nightlife", categories: ["music-nightlife"], why: "After-dark energy" },
+  { key: "family", label: "Community", icon: "community-causes", categories: ["community-causes", "festivals-other", "sports-outdoors"], why: "Community, festivals and outdoors; check each listing for age restrictions" },
+  { key: "night", label: "Nightlife", icon: "music-nightlife", categories: ["music-nightlife"], why: "Music and nightlife; check each listing for age restrictions" },
   { key: "photo", label: "Photographer", icon: "arts-culture", categories: ["arts-culture", "sports-outdoors"], why: "Art, views and outdoor light" },
   { key: "foodie", label: "Foodie", icon: "food-drink", categories: ["food-drink", "markets-shopping"], why: "Eat your way through the city" },
   { key: "techie", label: "Techie", icon: "learning-hobbies", categories: ["learning-hobbies"], why: "Builders and hobbyists" },
