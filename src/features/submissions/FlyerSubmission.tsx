@@ -63,7 +63,7 @@ export function FlyerSubmission() {
         <button type="button" onClick={() => setActiveToken(token.trim())} disabled={!token.trim()}>Open review queue</button></div>
       <p>The token is held only in this tab. It is checked by Convex for every review action.</p>
       {activeToken && pending !== null && <div className="flyer-queue">
-        <h3>Pending flyers ({pending.length})</h3>
+        <div className="flyer-queue-heading"><h3>Pending flyers ({pending.length})</h3><button type="button" onClick={() => loadPending({ moderatorToken: activeToken }).then(setPending)}>Refresh queue</button></div>
         {pending.length === 0 ? <p>No pending submissions.</p> : pending.map(draft => <DraftCard key={draft._id} draft={draft} token={activeToken} onRefresh={() => loadPending({ moderatorToken: activeToken }).then(setPending)} />)}
       </div>}
       {activeToken && pending === null && <p role="status">Loading reviewer queue…</p>}
