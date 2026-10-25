@@ -1,10 +1,11 @@
 import { v } from "convex/values";
-import { mutation, action, internalMutation, internalAction, internalQuery, query } from "./_generated/server";
+import { mutation, action, internalMutation, internalAction, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { env } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { missionVenueMatch } from "./missionVenues";
 import { eventEnd } from "../src/lib/eventLifecycle";
+import type { EventCategory, LocalEvent } from "../src/lib/event";
 
 const category = v.union(
   v.literal("music-nightlife"), v.literal("arts-culture"), v.literal("markets-shopping"),
@@ -29,6 +30,7 @@ function asLocalIso(date: string | null, time: string | null): string | null {
   const [y, m, d] = date.split("-").map(Number);
   const [h, min] = time.split(":").map(Number);
   if (m < 1 || m > 12 || d < 1 || d > 31 || h > 23 || min > 59) return null;
+  if (new Date(Date.UTC(y, m - 1, d)).toISOString().slice(0, 10) !== date) return null;
   return `${date}T${time}:00`;
 }
 function toUtc(local: string): string | null {
@@ -52,7 +54,7 @@ function toUtc(local: string): string | null {
 }
 function eventPatch(draft: {
   title: string | null; description: string | null; date: string | null; startTime: string | null;
-  endTime: string | null; venueName: string | null; address: string | null; category: string | null;
+  endTime: string | null; venueName: string | null; address: string | null; category: EventCategory | null;
   latitude: number | null; longitude: number | null; unresolvedFields: string[]; imageStorageId: Id<"_storage">;
 }) {
   const startLocal = asLocalIso(draft.date, draft.startTime);
