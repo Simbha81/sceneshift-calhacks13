@@ -46,6 +46,7 @@ export function EventMap({ events, selected, onSelect, now }: {
         const availability = eventAvailability(event, now);
         button.type = "button"; button.className = "event-pin";
         button.dataset.phase = phase; button.dataset.availability = availability;
+        button.dataset.category = event.categories[0] ?? "";
         button.textContent = availability === "sold-out" ? "×" : phase === "ending-soon" ? "◷" : "●";
         const label = `View ${event.title} · ${eventStateLabel(event, now)}${availability === "sold-out" ? " · Reported sold out" : ""}`;
         button.setAttribute("aria-label", label); button.title = label;
