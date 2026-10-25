@@ -213,9 +213,22 @@ export const saveExtraction = internalMutation({
   handler: async (ctx, args) => {
     const row = await ctx.db.get(args.submissionId);
     if (!row || row.status !== "pending") return null;
-    const patch = Object.fromEntries(Object.entries(args).filter(([key, value]) => key !== "submissionId" && value !== undefined));
+    const patch = {
+      extractionStatus: args.extractionStatus, extractionNotes: args.extractionNotes,
+      ...(args.title !== undefined ? { title: args.title } : {}),
+      ...(args.description !== undefined ? { description: args.description } : {}),
+      ...(args.date !== undefined ? { date: args.date } : {}),
+      ...(args.startTime !== undefined ? { startTime: args.startTime } : {}),
+      ...(args.endTime !== undefined ? { endTime: args.endTime } : {}),
+      ...(args.venueName !== undefined ? { venueName: args.venueName } : {}),
+      ...(args.address !== undefined ? { address: args.address } : {}),
+      ...(args.category !== undefined ? { category: args.category } : {}),
+      ...(args.latitude !== undefined ? { latitude: args.latitude } : {}),
+      ...(args.longitude !== undefined ? { longitude: args.longitude } : {}),
+      ...(args.unresolvedFields !== undefined ? { unresolvedFields: args.unresolvedFields } : {}),
+    };
     await ctx.db.patch(args.submissionId, patch);
-    const fresh = { ...row, ...patch } as typeof row;
+    const fresh = { ...row, ...patch };
     if (fresh.eventId) {
       const event = eventPatch(fresh);
       await ctx.db.patch(fresh.eventId, { ...event, sourceEventId: String(args.submissionId) });
