@@ -222,11 +222,9 @@ export const saveExtraction = internalMutation({
   },
 });
 
-export const listPending = query({
-  args: { moderatorToken: v.string() },
-  returns: v.array(v.any()),
-  handler: async (ctx, { moderatorToken }) => {
-    checkModerator(moderatorToken);
+export const listPendingInternal = internalQuery({
+  args: {}, returns: v.array(v.any()),
+  handler: async (ctx) => {
     const rows = await ctx.db.query("flyerSubmissions").withIndex("by_status_createdAt", q => q.eq("status", "pending")).order("desc").take(50);
     return await Promise.all(rows.map(async row => ({ ...row, imageUrl: await ctx.storage.getUrl(row.imageStorageId) })));
   },
@@ -240,7 +238,6 @@ export const updateDraftInternal = internalMutation({
     unresolvedFields: v.array(v.string()), reviewedFields: v.array(v.string()) },
   returns: v.null(),
   handler: async (ctx, args) => {
-    checkModerator(args.moderatorToken);
     const row = await ctx.db.get(args.submissionId);
     if (!row || row.status !== "pending") throw new Error("Pending flyer was not found");
     if (args.latitude !== null && (!Number.isFinite(args.latitude) || args.latitude < -90 || args.latitude > 90)) throw new Error("Invalid latitude");
