@@ -5,15 +5,19 @@ import type { LocalEvent } from "./lib/event";
 import { CATEGORY_LABELS, eventKey, eventTime, hasCoordinates, listingUrl } from "./lib/eventDisplay";
 import { EventMap } from "./features/map/EventMap";
 import { FlyerSubmission } from "./features/submissions/FlyerSubmission";
+import { SceneShiftShell } from "./features/sceneshift/SceneShiftShell";
 import { isMapVisible } from "./lib/eventValidation";
 import { ENDING_SOON_MS, eventAvailability, eventEnd, eventPhase, eventStateLabel } from "./lib/eventLifecycle";
+// The SceneShift dark layout is the default. Add ?classic=1 to the URL to see the original layout.
+const classicLayout = () => typeof window !== "undefined" && new URLSearchParams(window.location.search).has("classic");
 export function App({ connected }: { connected: boolean }) {
+  if (!classicLayout()) return connected ? <LiveEvents classic={false} /> : <SceneShiftShell events={[]} loading={false} connected={false} now={Date.now()} />;
   return <main><header><span>CAL HACKS 13 · SCENESHIFT</span><h1>Find your next scene.</h1>
     <p>Explore San Francisco’s local culture, one event at a time.</p></header>
-    {connected ? <LiveEvents /> : <Explore events={[]} loading={false} connected={false} now={Date.now()} />}
+    {connected ? <LiveEvents classic /> : <Explore events={[]} loading={false} connected={false} now={Date.now()} />}
   </main>;
 }
-function LiveEvents() {
+function LiveEvents({ classic }: { classic: boolean }) {
   const [now, setNow] = useState(Date.now);
   const events = useQuery(listApproved, { now });
   useEffect(() => {
@@ -31,6 +35,7 @@ function LiveEvents() {
     document.addEventListener("visibilitychange", update);
     return () => { window.removeEventListener("focus", update); document.removeEventListener("visibilitychange", update); };
   }, []);
+  if (!classic) return <SceneShiftShell events={events ?? []} loading={events === undefined} connected now={now} addSlot={<FlyerSubmission />} />;
   return <><Explore events={events ?? []} loading={events === undefined} connected now={now} /><FlyerSubmission /></>;
 }
 function Explore({ events, loading, connected, now }: { events: LocalEvent[]; loading: boolean; connected: boolean; now: number }) {
