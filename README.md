@@ -11,6 +11,9 @@ Help people find their place in San Francisco's local culture. SceneShift brings
 
 **Out of scope:** personalized public accounts, saved profiles, avatars/backgrounds, Scene Buzz, friends/DMs, advanced RSVP/reputation systems, user-created communities, and sophisticated recommendations. Secure importer/moderator authorization remains necessary.
 
+## Figma concept versus implemented app
+Natalia's Figma prototype may include simulated accounts and social interactions to show the future product vision. These interactions remain design concepts; the hackathon app implements account-free discovery, EventPulse data, Claude flyer-to-map, and SceneShift Lite. Do not build account or social backends from the mockup. Preserve direct access to working flows without login. Any concept-only controls included in the coded UI must be labeled as planned or unavailable. Demo and submission materials must identify which interactions work only in Figma.
+
 ## Sponsor targets
 We aim to win every track we enter, explicitly including Claude. Meaningful product use is the priority: Apify supplies trustworthy events; Claude interprets flyers; Convex powers shared state and reactive publishing; Figma supports intentional design, prototyping, and handoff.
 

@@ -15,6 +15,9 @@ Build in this order:
 
 No personalized public user accounts, saved profiles, avatars/backgrounds, friends/DMs, user-created communities, Scene Buzz, advanced reputation/RSVP systems, or sophisticated recommendation AI. Protected importer and moderator authorization is still required; this is distinct from public personalized accounts.
 
+## Figma concept and working application
+Natalia's Figma prototype may retain simulated user accounts and social interactions as future-product concepts. Keep them in Figma without implementing account authentication, profiles, social storage, or social APIs for the hackathon app. The working app remains account-free discovery, EventPulse data, Claude flyer-to-map, and SceneShift Lite. Figma-only interactions must not require login or block working app flows. If a concept-only element is carried into the coded UI, clearly label it as planned or unavailable and do not simulate a successful backend action. In demos and submission materials, distinguish interactive Figma concepts from implemented app functionality. Protected moderator access remains required.
+
 ## Sponsor goals are project requirements
 The team aims to win every track entered, explicitly including Claude. Meaningful product use is the priority. Apify, Claude, Convex, and Figma must each have a clear, demonstrable contribution. Do not treat installing a package, generating code with a tool, or mentioning a sponsor as proof that its track is covered.
 
