@@ -5,6 +5,7 @@ import { env } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { missionVenueMatch } from "./missionVenues";
 import { eventEnd } from "../src/lib/eventLifecycle";
+import { isMapVisible } from "../src/lib/eventValidation";
 import type { EventCategory, LocalEvent } from "../src/lib/event";
 
 const category = v.union(
@@ -277,7 +278,9 @@ export const reviewInternal = internalMutation({
         throw new Error("Resolve or explicitly review every uncertainty and confirm a mappable location before approval");
       }
       const startAt = toUtc(asLocalIso(row.date, row.startTime)!);
-      if (!startAt || Date.parse(startAt) <= Date.now()) throw new Error("Enter a valid future date and start time");
+      if (!startAt) throw new Error("Enter a valid date and start time.");
+      const candidate = { ...eventPatch(row), startAt, status: "approved" as const, verified: true };
+      if (!isMapVisible(candidate, Date.now())) throw new Error("Event timing or coordinates are not valid for the map.");
     }
     const decision = args.decision;
     await ctx.db.patch(row.eventId, { status: decision, verified: decision === "approved",
