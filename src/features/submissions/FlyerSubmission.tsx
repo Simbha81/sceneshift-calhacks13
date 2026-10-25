@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useAction, useMutation } from "convex/react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { CATEGORY_LABELS } from "../../lib/eventDisplay";
 import { generateFlyerUploadUrl, listPendingFlyers, reviewFlyer, submitFlyer, updateFlyerDraft, type FlyerDraft } from "../../lib/api";
@@ -30,7 +30,16 @@ export function FlyerSubmission() {
   }
   const [token, setToken] = useState("");
   const [activeToken, setActiveToken] = useState("");
-  const pending = useQuery(listPendingFlyers, activeToken ? { moderatorToken: activeToken } : "skip");
+  const [pending, setPending] = useState<FlyerDraft[] | null>(null);
+  const loadPending = useAction(listPendingFlyers);
+  useEffect(() => {
+    if (!activeToken) { setPending(null); return; }
+    let live = true;
+    setPending(null);
+    loadPending({ moderatorToken: activeToken }).then(rows => { if (live) setPending(rows); })
+      .catch(error => { if (live) { setPending([]); setMessage(error instanceof Error ? error.message : "Could not load review queue."); } });
+    return () => { live = false; };
+  }, [activeToken, loadPending]);
   return <section className="flyer-panel" aria-labelledby="flyer-heading">
     <div className="flyer-panel-heading"><div><p className="flyer-eyebrow">Community submissions</p><h2 id="flyer-heading">Share an event flyer</h2>
       <p>Claude drafts details from the image. A reviewer confirms them before anything appears on the map.</p></div></div>
@@ -45,16 +54,16 @@ export function FlyerSubmission() {
       <div className="flyer-token-row"><input id="moderator-token" type="password" autoComplete="off" value={token} onChange={e => setToken(e.target.value)} placeholder="Enter the Convex moderator token" />
         <button type="button" onClick={() => setActiveToken(token.trim())} disabled={!token.trim()}>Open review queue</button></div>
       <p>The token is held only in this tab. It is checked by Convex for every review action.</p>
-      {activeToken && pending && <div className="flyer-queue">
+      {activeToken && pending !== null && <div className="flyer-queue">
         <h3>Pending flyers ({pending.length})</h3>
-        {pending.length === 0 ? <p>No pending submissions.</p> : pending.map(draft => <DraftCard key={draft._id} draft={draft} token={activeToken} />)}
+        {pending.length === 0 ? <p>No pending submissions.</p> : pending.map(draft => <DraftCard key={draft._id} draft={draft} token={activeToken} onRefresh={() => loadPending({ moderatorToken: activeToken }).then(setPending)} />)}
       </div>}
-      {activeToken && pending === undefined && <p role="status">Loading reviewer queue…</p>}
+      {activeToken && pending === null && <p role="status">Loading reviewer queue…</p>}
     </details>
   </section>;
 }
 
-function DraftCard({ draft, token }: { draft: FlyerDraft; token: string }) {
+function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: string; onRefresh: () => void }) {
   const [values, setValues] = useState(() => ({
     title: draft.title ?? "", description: draft.description ?? "", date: draft.date ?? "",
     startTime: draft.startTime ?? "", endTime: draft.endTime ?? "", venueName: draft.venueName ?? "",
