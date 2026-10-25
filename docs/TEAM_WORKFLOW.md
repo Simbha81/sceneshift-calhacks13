@@ -19,7 +19,7 @@ Figma design supports the work throughout; elaborate styling does not block the 
 - [x] React/TypeScript/Vite + MapLibre foundation initialized.
 - [ ] Develop reusable EventPulse Actor with sources, validation, duplicate handling, collection timestamps, and documented output.
 - [ ] Test two reachable, supported public sources and preserve cloud run/dataset evidence.
-- [ ] Build server-side Claude structured flyer extraction; flag ambiguous/missing details.
+- [ ] Integrate Natalie's Claude flyer ingestion PR; preserve its uncertainties, pending review and map publication contract.
 - [x] Protected internal Convex ingestion runs against real Actor results; repeat import inserts no duplicates.
 - [ ] Lead integration, deployment, and full demo verification.
 
@@ -31,6 +31,7 @@ Figma design supports the work throughout; elaborate styling does not block the 
 - [ ] Polish after the complete functional path works.
 
 ## Natalie
+- [ ] Own Claude flyer ingestion and editable intake on feature/natalie-flyer-intake; coordinate visual components with Natalia.
 - [ ] Implement Convex schema, approved-events query, secure idempotent import, storage, and pending submissions.
 - [ ] Implement protected approval/rejection and reliable map publication.
 - [ ] Test two-session live updates, duplicate ingestion, and unauthorized approval rejection.

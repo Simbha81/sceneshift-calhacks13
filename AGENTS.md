@@ -23,7 +23,7 @@ Use docs/SPONSOR_TRACKS.md to distinguish official requirements, our engineering
 Record actual tool use and Figma stages during the build. Never fabricate tests, user feedback, model quality, or performance numbers. Preserve source URLs, timestamps, uncertainties, and real model results.
 
 ## Development tools and Claude runtime
-Simran and Natalie are using Codex for development. Natalie reports Claude is not working for her development workflow. Keep Claude as the planned in-app flyer extraction API; using Codex to implement the app does not remove that role. Simran reports $50 in Claude API credits; confirm active balance, restrictions, and expiry in the Console and test a real image request before treating API access as verified. Never place an API key in chat, client code, or the repository.
+Simran uses Codex for development. Natalie now uses Claude on her own laptop and owns flyer ingestion; do not overlap her feature files. Simran owns EventPulse quality and integration. Keep Claude as the planned in-app flyer extraction API; using Codex to implement the app does not remove that role. Simran reports $50 in Claude API credits; confirm active balance, restrictions, and expiry in the Console and test a real image request before treating API access as verified. Never place an API key in chat, client code, or the repository.
 
 ## Implementation discipline
 The repository contains a runnable React/Vite/MapLibre app and a Convex backend with tested real EventPulse ingestion and protected internal review. Verify live state and current GitHub branch before reporting progress. Keep shared transport, Actor output, and Convex schema consistent. Never invent coordinates, dates, prices, or attendance. Track source retrieval time and deduplication identity; imported records preserve collectedAt and flag unresolved fields.
@@ -36,7 +36,7 @@ The official Devpost overview checked October 23, 2026 lists submission October 
 
 ## Shared backend and team synchronization
 
-Read docs/TEAM_START_HERE.md. Shared demo development deployment: bold-lobster-565; public frontend URL https://bold-lobster-565.convex.cloud. UI-only work runs pnpm dev and must not start convex dev or deploy backend code. Simran is the sole shared-backend publisher during integration. Backend branches test in personal deployments and use PRs; never overwrite the shared deployment from a teammate's feature branch. Coordinate schema, shared event types, package files, App wiring, and shared styles before concurrent edits. Preserve teammates' existing checkouts and databases. Main becomes the current team baseline after PR #3 is merged.
+Read docs/TEAM_START_HERE.md. Shared demo development deployment: bold-lobster-565; public frontend URL https://bold-lobster-565.convex.cloud. UI-only work runs pnpm dev and must not start convex dev or deploy backend code. Simran is the sole shared-backend publisher during integration. Backend branches test in personal deployments and use PRs; never overwrite the shared deployment from a teammate's feature branch. Coordinate schema, shared event types, package files, App wiring, and shared styles before concurrent edits. Preserve teammates' existing checkouts and databases. PR #3 is merged and main is the shared baseline; quality changes are reviewed separately in PR #5.
 
 <!-- convex-ai-start -->
 

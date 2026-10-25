@@ -110,3 +110,9 @@ npx convex run apifyReview:approve '{"eventId":"CONVEX_EVENT_ID","expectedCollec
 ```
 
 Verification: TypeScript and eight backend/normalization/transport tests pass. Synthetic fixtures stay in tests and were not seeded. The original SDK attempt failed before creating a new run, as verified by the recent-run list before the successful REST start.
+
+## Quality candidate validation
+
+See [the completed quality validation](EVENTPULSE_QUALITY_CHECKPOINT.md) for cloud build 0.1.2, real sample/run IDs, repeat-import results, six approved demo records and limitations. Lookup is off by default. Source coordinates are now extracted from DoTheBay metadata; no geocoder was required in the successful sample. The live latest tag still points to 0.0.13 until candidate release.
+
+Admin review now supports bounded price, scene, description and canonical UTC time corrections. Evidence and original values are retained, public aliases and mapEndsAt are updated together, and recollected changed facts return to pending with the previous review preserved. These remain internal CLI/dashboard functions; no public account or browser moderation interface is added.

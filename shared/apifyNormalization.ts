@@ -41,7 +41,11 @@ export function canonicalEventUrl(value: unknown): string {
 function date(value: unknown, timezone?: string): string | null {
   const text = str(value, 100);
   if (!text) return null;
-  if (/T.*(?:Z|[+-]\d{2}:?\d{2})$/i.test(text)) {
+  const offset = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.\d{1,3})?)?(?:Z|[+-]\d{2}:?\d{2})$/i.exec(text);
+  if (offset) {
+    const [, y, m, d, h, min, sec = "00"] = offset;
+    const calendar = Date.UTC(+y, +m - 1, +d, +h, +min, +sec);
+    if (new Date(calendar).toISOString().slice(0, 19) !== `${y}-${m}-${d}T${h}:${min}:${sec}`) return null;
     return Number.isFinite(Date.parse(text)) ? new Date(text).toISOString() : null;
   }
   // Interpret local timestamps only with an explicitly supplied source timezone.
@@ -103,6 +107,11 @@ export function normalizeActorItem(value: unknown, importedAt: string) {
   const latitude = coordinate(item.latitude ?? extra.latitude, 90);
   const longitude = coordinate(item.longitude ?? extra.longitude, 180);
   const warnings: string[] = [];
+  if (Array.isArray(extra.qualityWarnings)) {
+    for (const warning of extra.qualityWarnings.slice(0, 10)) {
+      if (typeof warning === "string" && /conflicting price/i.test(warning)) warnings.push(warning.slice(0, 500));
+    }
+  }
   if (latitude === null || longitude === null) warnings.push("Location unresolved; review before approval");
   if (priceStatus === "paid" && /^0(?:\.0+)?(?:\s+[A-Z]{3})?$/.test(str(item.priceText, 500) ?? "")) warnings.push("Price status conflicts with zero price; confirm source");
   const event: LocalEvent = { title, description, startAt, endAt, timezone, venueName: venue, address,

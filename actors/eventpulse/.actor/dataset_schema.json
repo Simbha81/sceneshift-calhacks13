@@ -1,0 +1,173 @@
+{
+  "$schema": "https://apify.com/schemas/v1/dataset.ide.json",
+  "actorSpecification": 1,
+  "fields": {
+    "type": "object",
+    "properties": {
+      "source": {
+        "type": "string"
+      },
+      "title": {
+        "type": "string"
+      },
+      "shortDescription": {
+        "type": "string"
+      },
+      "startDateTime": {
+        "type": "string"
+      },
+      "endDateTime": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "venue": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "address": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "priceStatus": {
+        "type": "string"
+      },
+      "priceText": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "url": {
+        "type": "string"
+      },
+      "collectedAt": {
+        "type": "string"
+      },
+      "latitude": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "longitude": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "categories": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "tags": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "extra": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "source",
+      "title",
+      "shortDescription",
+      "startDateTime",
+      "endDateTime",
+      "venue",
+      "address",
+      "priceStatus",
+      "priceText",
+      "url",
+      "collectedAt",
+      "latitude",
+      "longitude",
+      "categories",
+      "tags",
+      "extra"
+    ]
+  },
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": [
+          "source",
+          "title",
+          "startDateTime",
+          "endDateTime",
+          "venue",
+          "priceStatus",
+          "categories",
+          "latitude",
+          "longitude",
+          "url",
+          "collectedAt",
+          "extra"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "source": {
+            "label": "source",
+            "format": "text"
+          },
+          "title": {
+            "label": "title",
+            "format": "text"
+          },
+          "startDateTime": {
+            "label": "startDateTime",
+            "format": "date"
+          },
+          "endDateTime": {
+            "label": "endDateTime",
+            "format": "date"
+          },
+          "venue": {
+            "label": "venue",
+            "format": "text"
+          },
+          "priceStatus": {
+            "label": "priceStatus",
+            "format": "text"
+          },
+          "categories": {
+            "label": "categories",
+            "format": "array"
+          },
+          "latitude": {
+            "label": "latitude",
+            "format": "number"
+          },
+          "longitude": {
+            "label": "longitude",
+            "format": "number"
+          },
+          "url": {
+            "label": "url",
+            "format": "link"
+          },
+          "collectedAt": {
+            "label": "collectedAt",
+            "format": "date"
+          },
+          "extra": {
+            "label": "extra",
+            "format": "object"
+          }
+        }
+      }
+    }
+  }
+}

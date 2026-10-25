@@ -5,7 +5,9 @@ Win every track we enter, including Claude's. Each integration must solve a real
 
 Foundation checkpoint October 24 (before EventPulse integration): local React/Vite + MapLibre foundation renders the SF basemap and reads the connected Convex approved-events query. Two manually reviewed recurring market occurrences were imported. Simran confirmed pin/card selection, details/source links, category filtering, and Fit events work. Repeat-bootstrap duplicate prevention and live status changes in two independent SDK subscription clients passed. Browser-specific two-session verification, Actor ingestion, Claude extraction, hosted deployment, and Figma workflow evidence remain outstanding.
 
-Latest integration checkpoint: EventPulse REST start/poll/pagination and URL-keyed import passed against real cloud data. Reimport inserted zero duplicate records; an admin-reviewed imported Luma record is returned by the live map query. See APIFY_INTEGRATION.md for run IDs and pending data-quality gaps. Claude runtime and Figma evidence are still outstanding.
+Latest quality checkpoint: candidate Actor build 0.1.2 and its six-record cloud run succeeded across Eventbrite, Luma and DoTheBay. Repeat import inserted zero duplicates; six current records are returned by the approved map query after documented source review. Thirty tests pass. See EVENTPULSE_QUALITY_CHECKPOINT.md for evidence and gaps; live Actor latest remains on the previous build pending release. Claude and Figma evidence remain outstanding.
+
+Previous integration checkpoint: EventPulse REST start/poll/pagination and URL-keyed import passed against real cloud data. Reimport inserted zero duplicate records; an admin-reviewed imported Luma record is returned by the live map query. See APIFY_INTEGRATION.md for run IDs and pending data-quality gaps. Claude runtime and Figma evidence are still outstanding.
 
 ## Sources and verification
 - Official event overview: https://cal-hacks-13-0.devpost.com/ (checked October 23, 2026).
