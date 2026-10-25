@@ -58,6 +58,8 @@ An [owner-private hosted preview](https://sceneshift-calhacks13-preview.simbhati
 To populate the development map with the first two manually reviewed market occurrences, run `npx convex dev --once` and then `npx convex run bootstrap:importReviewed '{}'`. Keep Vite open to observe the update. See [source notes and pin acceptance checks](docs/REVIEWED_EVENTS.md). This internal-only bootstrap is safe to rerun and is separate from the future Actor importer. These dated occurrences expire naturally.
 
 ## First integration milestone
+
+EventPulse's internal sync and public approved-event read query are implemented in [the Apify integration](docs/APIFY_INTEGRATION.md). Set APIFY_TOKEN in the Convex server environment, then run the documented one-sync command. Authentication/live Actor output remains to be verified; public Store visibility does not grant API run access.
 - Deployed map reads Convex fixtures to prove the foundation; replace/augment with real sourced events for the final demo.
 - EventPulse produces valid public events from two tested sources.
 - Repeated import does not create duplicate events.

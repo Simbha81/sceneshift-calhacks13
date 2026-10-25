@@ -8,6 +8,11 @@
  * @module
  */
 
+import type * as apifyApi from "../apifyApi.js";
+import type * as apifyModel from "../apifyModel.js";
+import type * as apifyRead from "../apifyRead.js";
+import type * as apifyStore from "../apifyStore.js";
+import type * as apifySync from "../apifySync.js";
 import type * as bootstrap from "../bootstrap.js";
 import type * as events from "../events.js";
 import type * as lib_server from "../lib/server.js";
@@ -19,6 +24,11 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  apifyApi: typeof apifyApi;
+  apifyModel: typeof apifyModel;
+  apifyRead: typeof apifyRead;
+  apifyStore: typeof apifyStore;
+  apifySync: typeof apifySync;
   bootstrap: typeof bootstrap;
   events: typeof events;
   "lib/server": typeof lib_server;
@@ -50,4 +60,6 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  workflow: import("@convex-dev/workflow/_generated/component.js").ComponentApi<"workflow">;
+};
