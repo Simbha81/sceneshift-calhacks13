@@ -14,6 +14,7 @@ export function FlyerSubmission() {
   async function sendFlyer(event: FormEvent) {
     event.preventDefault();
     if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type) || file.size > 5_000_000) { setMessage("Choose a JPEG, PNG, WebP, or GIF under 5 MB."); return; }
     setUploading(true); setMessage("");
     try {
       const url = await uploadUrl({});
@@ -40,6 +41,13 @@ export function FlyerSubmission() {
       .catch(error => { if (live) { setPending([]); setMessage(error instanceof Error ? error.message : "Could not load review queue."); } });
     return () => { live = false; };
   }, [activeToken, loadPending]);
+  useEffect(() => {
+    if (!activeToken || !pending?.some(row => row.extractionStatus === "queued" || row.extractionStatus === "processing")) return;
+    const timer = window.setTimeout(() => {
+      loadPending({ moderatorToken: activeToken }).then(setPending).catch(() => undefined);
+    }, 1800);
+    return () => window.clearTimeout(timer);
+  }, [activeToken, loadPending, pending]);
   return <section className="flyer-panel" aria-labelledby="flyer-heading">
     <div className="flyer-panel-heading"><div><p className="flyer-eyebrow">Community submissions</p><h2 id="flyer-heading">Share an event flyer</h2>
       <p>Claude drafts details from the image. A reviewer confirms them before anything appears on the map.</p></div></div>
