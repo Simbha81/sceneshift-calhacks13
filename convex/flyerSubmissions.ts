@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, action, internalMutation, internalAction, internalQuery } from "./_generated/server";
+import { mutation, internalMutation, internalAction, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { env } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
@@ -17,9 +17,6 @@ const nullableText = v.union(v.string(), v.null());
 const categories = ["music-nightlife", "arts-culture", "markets-shopping", "food-drink",
   "community-causes", "sports-outdoors", "learning-hobbies", "festivals-other"] as const;
 const fields = ["title", "description", "date", "startTime", "endTime", "venueName", "address", "category"] as const;
-const checkModerator = (token: string) => {
-  if (!env.SCENESHIFT_MODERATOR_TOKEN || token !== env.SCENESHIFT_MODERATOR_TOKEN) throw new Error("Moderator access denied");
-};
 function addUnresolved(values: string[], key: string) {
   if (!values.includes(key)) values.push(key);
 }
@@ -301,32 +298,3 @@ export const reviewInternal = internalMutation({
   },
 });
 
-export const listPending = action({
-  args: { moderatorToken: v.string() }, returns: v.array(v.any()),
-  handler: async (ctx, { moderatorToken }) => {
-    checkModerator(moderatorToken);
-    return await ctx.runQuery(internal.flyerSubmissions.listPendingInternal, {});
-  },
-});
-export const updateDraft = action({
-  args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"),
-    title: nullableText, description: nullableText, date: nullableText, startTime: nullableText, endTime: nullableText,
-    venueName: nullableText, address: nullableText, category: v.union(category, v.null()),
-    latitude: v.union(v.number(), v.null()), longitude: v.union(v.number(), v.null()),
-    unresolvedFields: v.array(v.string()), reviewedFields: v.array(v.string()) },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    const { moderatorToken, ...input } = args;
-    checkModerator(moderatorToken);
-    return await ctx.runMutation(internal.flyerSubmissions.updateDraftInternal, input);
-  },
-});
-export const review = action({
-  args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"), decision: v.union(v.literal("approved"), v.literal("rejected")) },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    const { moderatorToken, submissionId, decision } = args;
-    checkModerator(moderatorToken);
-    return await ctx.runMutation(internal.flyerSubmissions.reviewInternal, { submissionId, decision });
-  },
-});
