@@ -4,6 +4,7 @@ import { listApproved } from "./lib/api";
 import type { LocalEvent } from "./lib/event";
 import { CATEGORY_LABELS, eventKey, eventTime, hasCoordinates, listingUrl } from "./lib/eventDisplay";
 import { EventMap } from "./features/map/EventMap";
+import { FlyerSubmission } from "./features/submissions/FlyerSubmission";
 import { isMapVisible } from "./lib/eventValidation";
 import { ENDING_SOON_MS, eventAvailability, eventEnd, eventPhase, eventStateLabel } from "./lib/eventLifecycle";
 export function App({ connected }: { connected: boolean }) {
@@ -30,7 +31,7 @@ function LiveEvents() {
     document.addEventListener("visibilitychange", update);
     return () => { window.removeEventListener("focus", update); document.removeEventListener("visibilitychange", update); };
   }, []);
-  return <Explore events={events ?? []} loading={events === undefined} connected now={now} />;
+  return <><Explore events={events ?? []} loading={events === undefined} connected now={now} /><FlyerSubmission /></>;
 }
 function Explore({ events, loading, connected, now }: { events: LocalEvent[]; loading: boolean; connected: boolean; now: number }) {
   const [category, setCategory] = useState("all");
