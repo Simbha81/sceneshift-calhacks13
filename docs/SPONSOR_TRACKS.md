@@ -5,7 +5,7 @@ Win every track we enter, including Claude's. Each integration must solve a real
 
 Foundation checkpoint October 24 (before EventPulse integration): local React/Vite + MapLibre foundation renders the SF basemap and reads the connected Convex approved-events query. Two manually reviewed recurring market occurrences were imported. Simran confirmed pin/card selection, details/source links, category filtering, and Fit events work. Repeat-bootstrap duplicate prevention and live status changes in two independent SDK subscription clients passed. Browser-specific two-session verification, Actor ingestion, Claude extraction, hosted deployment, and Figma workflow evidence remain outstanding.
 
-Latest quality checkpoint: candidate Actor build 0.1.2 and its six-record cloud run succeeded across Eventbrite, Luma and DoTheBay. Repeat import inserted zero duplicates; six current records are returned by the approved map query after documented source review. Thirty tests pass. See EVENTPULSE_QUALITY_CHECKPOINT.md for evidence and gaps; live Actor latest remains on the previous build pending release. Claude and Figma evidence remain outstanding.
+Latest quality checkpoint: candidate Actor build 0.1.2 and its six-record cloud run succeeded across Eventbrite, Luma and DoTheBay. Repeat import inserted zero duplicates; six current records are returned by the approved map query after documented source review. Thirty tests pass. See EVENTPULSE_QUALITY_CHECKPOINT.md for evidence and gaps; PR #5 is merged and tested Actor 0.1.2 is now live latest. Claude and Figma evidence remain outstanding.
 
 Previous integration checkpoint: EventPulse REST start/poll/pagination and URL-keyed import passed against real cloud data. Reimport inserted zero duplicate records; an admin-reviewed imported Luma record is returned by the live map query. See APIFY_INTEGRATION.md for run IDs and pending data-quality gaps. Claude runtime and Figma evidence are still outstanding.
 
@@ -33,7 +33,7 @@ Current evidence: public Actor build 0.0.13; new cloud run ieoWQtqh2UjhguSoG suc
 Open: verify Best use of Apify and Best Actor requirements, submission visibility, entry method, and deadlines.
 
 ### Claude
-Development tools: Simran and Natalie use Codex. Simran reports $50 in Claude API credits; active balance, expiry/restrictions, and a successful image request remain unverified. The chat plan is separate from API access. Official billing/account references: https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage and https://support.claude.com/en/articles/8987223-can-i-have-a-claude-account-and-a-console-account .
+Development tools: Simran uses Codex; Natalie now uses Claude on her laptop. Simran reports $50 in Claude API credits; active balance, expiry/restrictions, and a successful image request remain unverified. The chat plan is separate from API access. Official billing/account references: https://support.claude.com/en/articles/8977456-how-do-i-pay-for-my-claude-api-usage and https://support.claude.com/en/articles/8987223-can-i-have-a-claude-account-and-a-console-account .
 
 Role: turn a flyer into a reviewable event that can be published to the map.
 - Real server-side Claude extraction from the uploaded image; preserve original flyer.
@@ -42,7 +42,7 @@ Role: turn a flyer into a reviewable event that can be published to the map.
 - Demonstrate the complete path to a new map pin, including a second browser.
 - Test multiple real flyers, including a missing-detail case; record actual extraction errors and corrections. Set an acceptance threshold after seeing the test set.
 Evidence to retain: example flyers with permission to use them, extraction outputs, correction examples, test notes, model configuration, and live demo.
-Current evidence: none implemented.
+Current evidence: Natalie has an open flyer ingestion PR #4. Its current revision still requires integration review and real Claude image-to-map evidence; do not treat an open PR as a verified runtime demonstration.
 Open: exact Claude/Anthropic category and rubric, and whether the challenge specifically requires Claude Code or another product. ChatGPT/Claude coding assistance is separate from the in-app API integration.
 
 ### Convex

@@ -3,7 +3,7 @@
 The complete local changes survived the disconnect, were recovered, and are now wired and tested. This supersedes the recovery-only snapshot originally in PR #5.
 
 ## Verified
-- Actor build 0.1.2: fAke5l4Y8RsUTQHtG, SUCCEEDED, tag quality-candidate. Live latest remains 0.0.13 pending release review. Original version 0.0 was not overwritten.
+- Actor build 0.1.2: fAke5l4Y8RsUTQHtG, SUCCEEDED, tag quality-candidate. Promoted to live latest on October 24 after PR #5 merged (393b263d355a4e5a75fb1d3946e88a5a5f025b91). The release checked the candidate build and successful run identity, then verified latest points to fAke5l4Y8RsUTQHtG. Previous latest 49ce2ksbjq39SriPK remains available for rollback. Original version 0.0 was not overwritten.
 - Final cloud run b7iWmoDKu4DojKbKv: SUCCEEDED; dataset xty4iMakyZpNJgUCM. Six real records: two each Eventbrite, Luma, DoTheBay. Diagnostics accepted 6, rejected 0, geocoder requests 0. All coordinates came from listing metadata.
 - Initial final-build import workflow jd71h8daenf10506emdqtz6g4h8gy7q2: fetched 6, inserted 5, updated 1, rejected 0, no truncation. Repeat workflow jd72mabkyj133j7zgwcbybzp1h8gy115: fetched 6, inserted 0, updated 5, skipped 1, rejected 0.
 - Earlier candidate 0.1.1 also passed: run lz5LjIebbAkNZDJZz, dataset 1i5E4GwHgrpOn9XX3. It was not promoted to latest.
@@ -23,7 +23,7 @@ Browser rendering of these new pins still needs visual confirmation. The hosted 
 ## Remaining limits
 Partiful was disabled in validation and Funcheap is unsupported. No invented coverage. Scene labels are transparent keyword classification and may remain unresolved. Exact-address geocoder matching and malformed responses are unit-tested, but external geocoder behavior is not cloud-verified; lookup is off by default and only suitable for coordinated single-run prototype use. Cancellation reconciliation and occurrence identity for downstream importers that key only by URL remain gaps. Missing from a crawl is never inferred cancellation.
 
-The temporary internal Actor source/build/test maintenance actions are removed before handoff. Version 0.1 is a separate candidate until release approval.
+The temporary internal Actor source/build/test maintenance actions are removed before handoff. The temporary fixed-target release action was also removed after promotion. No new paid run was needed: the unchanged tested build was promoted.
 
 ## Owners
 Natalie owns Claude flyer ingestion in PR #4; Natalia owns UI/Figma. Simran owns EventPulse quality, integration and shared development deployment. No flyer schema or UI feature files were changed by this work.

@@ -2,7 +2,7 @@
 
 ## Team baseline
 
-PR #3 is merged; use `main` as the shared baseline. Do not create a second application or copy files between repositories.
+PR #3 and EventPulse quality PR #5 are merged; use `main` as the shared baseline. Do not create a second application or copy files between repositories.
 
 - Repository: https://github.com/Simbha81/sceneshift-calhacks13
 - Shared development backend: `bold-lobster-565`
