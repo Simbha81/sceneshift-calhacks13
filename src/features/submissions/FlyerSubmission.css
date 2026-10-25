@@ -18,3 +18,5 @@
 .flyer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.flyer-draft-fields{display:grid;gap:.7rem}
 .flyer-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.3rem}.flyer-actions .flyer-approve{background:#197243}.flyer-actions .flyer-reject{background:#913c37}
 @media(max-width:760px){.flyer-panel{margin:1.5rem .8rem;padding:1rem}.flyer-upload{grid-template-columns:1fr}.flyer-upload button{grid-column:1}.flyer-draft{grid-template-columns:1fr}.flyer-draft-preview img{max-height:400px;position:static}.flyer-token-row{flex-direction:column}}
+
+.flyer-queue-heading{display:flex;align-items:center;justify-content:space-between;gap:.75rem}.flyer-queue-heading h3{margin:0}.flyer-queue-heading button{border:1px solid #075f70;border-radius:.55rem;padding:.55rem .8rem;background:#fff;color:#075f70;font-weight:700;cursor:pointer}
