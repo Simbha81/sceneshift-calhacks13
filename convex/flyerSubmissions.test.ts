@@ -103,6 +103,32 @@ test("blank end time is allowed as unknown and uses the labeled three-hour estim
   expect(event?.mapEndsAt).toBe(Date.parse(event?.startAt ?? "") + 3 * 60 * 60 * 1000);
 });
 
+test("multi-date approval creates one distinct event record per confirmed occurrence", async () => {
+  const t = convexTest(schema, modules);
+  const submissionId = await newSubmission(t);
+  const occurrences = [
+    { date: "2030-01-06", endDate: null, startTime: "11:00", endTime: "17:00" },
+    { date: "2030-02-03", endDate: null, startTime: "11:00", endTime: "17:00" },
+  ];
+  await t.mutation(internal.flyerSubmissions.saveExtraction, { submissionId, extractionStatus: "complete",
+    ...savedExtraction, date: occurrences[0].date, startTime: occurrences[0].startTime, endTime: occurrences[0].endTime,
+    occurrences, latitude: 37.76, longitude: -122.42, extractionNotes: "" });
+  await t.mutation(internal.flyerSubmissions.updateDraftInternal, updateArgs(submissionId, {
+    date: occurrences[0].date, startTime: occurrences[0].startTime, endTime: occurrences[0].endTime, occurrences,
+  }));
+  await t.mutation(internal.flyerSubmissions.reviewInternal, { submissionId, decision: "approved" });
+  const events = await t.run(async ctx => Promise.all([1, 2].map(index =>
+    ctx.db.query("events").withIndex("by_sourceType_and_sourceEventId", q =>
+      q.eq("sourceType", "flyer").eq("sourceEventId", `${submissionId}:${index}`)).unique())));
+  expect(events.map(event => event?.status)).toEqual(["approved", "approved"]);
+  expect(events.map(event => event?.startAt)).toEqual([
+    "2030-01-06T19:00:00.000Z", "2030-02-03T19:00:00.000Z",
+  ]);
+  const row = await t.run(ctx => ctx.db.get(submissionId));
+  expect(row?.status).toBe("approved");
+  expect(row?.eventIds).toHaveLength(2);
+});
+
 test("bad moderator credentials are rejected", async () => {
   vi.stubEnv("SCENESHIFT_MODERATOR_TOKEN", "expected-test-token");
   try {
