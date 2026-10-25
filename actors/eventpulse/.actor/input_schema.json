@@ -1,0 +1,68 @@
+{
+    "$schema": "https://apify.com/schemas/v1/input.ide.json",
+    "title": "EventPulse",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "maxEventsPerSource": {
+            "title": "Default max events per source",
+            "type": "integer",
+            "description": "Fallback cap for Eventbrite, Partiful, and Luma when their own caps are not set.",
+            "editor": "number",
+            "default": 5,
+            "minimum": 1
+        },
+        "maxEventbriteEvents": {
+            "title": "Max Eventbrite events",
+            "type": "integer",
+            "description": "Maximum Eventbrite events to collect. Leave empty to use the default.",
+            "editor": "number",
+            "minimum": 1
+        },
+        "maxPartifulEvents": {
+            "title": "Max Partiful events",
+            "type": "integer",
+            "description": "Maximum Partiful events to collect. Leave empty to use the default. Partiful events are dropped by the address filter.",
+            "editor": "number",
+            "minimum": 1
+        },
+        "maxLumaEvents": {
+            "title": "Max Luma events",
+            "type": "integer",
+            "description": "Maximum Luma events to collect. Leave empty to use the default.",
+            "editor": "number",
+            "minimum": 1
+        },
+        "maxDoTheBayEvents": {
+            "title": "Max DoTheBay events",
+            "type": "integer",
+            "description": "Maximum DoTheBay events to keep. 0 means no cap.",
+            "editor": "number",
+            "default": 0,
+            "minimum": 0
+        },
+        "daysAhead": {
+            "title": "Days ahead (DoTheBay)",
+            "type": "integer",
+            "description": "How many days of DoTheBay San Francisco listings to read, starting today.",
+            "editor": "number",
+            "default": 7,
+            "minimum": 1,
+            "maximum": 90
+        },
+        "eventbriteCity": {
+            "title": "Eventbrite city slug",
+            "type": "string",
+            "description": "City slug used for Eventbrite (country is fixed to United States).",
+            "editor": "textfield",
+            "default": "san-francisco"
+        },
+        "lumaCity": {
+            "title": "Luma city slug",
+            "type": "string",
+            "description": "City slug used for Luma.",
+            "editor": "textfield",
+            "default": "sf"
+        }
+    }
+}
