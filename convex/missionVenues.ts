@@ -10,5 +10,5 @@ export function missionVenueMatch(value: string | null | undefined) {
   const key = value?.toLocaleLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   if (!key) return null;
   return missionVenues.find(venue => venue.aliases.some(alias =>
-    key === alias || key.includes(alias) || alias.includes(key))) ?? null;
+    key === alias)) ?? null;
 }
