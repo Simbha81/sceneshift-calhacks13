@@ -76,3 +76,4 @@ Read the row that matches the step you are on.
 | Actor specification        | https://raw.githubusercontent.com/apify/actor-whitepaper/refs/heads/master/README.md               |
 
 With the Apify MCP server (`https://mcp.apify.com/?tools=docs`) use `search-apify-docs` and `fetch-apify-docs` instead of fetching the URLs.
+

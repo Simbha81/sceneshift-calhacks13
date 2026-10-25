@@ -2,7 +2,7 @@
 
 ## Team baseline
 
-Use `main` after PR #3 is merged. Before that merge, the current ingestion work lives on `feat/eventpulse-convex-sync`; pulling main alone does not include it. Do not create a second application or copy files between repositories.
+PR #3 is merged; use `main` as the shared baseline. Do not create a second application or copy files between repositories.
 
 - Repository: https://github.com/Simbha81/sceneshift-calhacks13
 - Shared development backend: `bold-lobster-565`
@@ -16,7 +16,7 @@ This development deployment is the hackathon integration/demo database. Producti
 
 Requires Node 22.12+ and pnpm 11. Clone the repository once, or use the existing checkout. Check `git status` first. If there are uncommitted changes, preserve them with Simran before switching branches; do not reset, clean, or overwrite them.
 
-Once PR #3 is merged and the working tree is clean:
+Once the working tree is clean:
 
 ```sh
 git switch main
@@ -54,8 +54,8 @@ Simran is the only publisher to bold-lobster-565 during integration. Coordinate 
 | Owner | Current focus | Coordination boundary |
 | --- | --- | --- |
 | Natalia | Figma, responsive map/cards, scene/category filters, upload/review screen UI | Own frontend feature folders; coordinate App wiring and shared styles |
-| Natalie | Backend PRs, pending/review flow, QA, sponsor evidence | Coordinate convex/schema.ts, generated API changes, and shared event types before editing |
-| Simran | Claude API integration, Actor quality, integration review, shared deployment and hosted preview | Own server secrets and final integration publishing |
+| Natalie | Claude flyer ingestion, editable review, pending submissions, QA | Coordinate convex/schema.ts, generated API changes, and shared event types before editing |
+| Simran | EventPulse quality, integration review, shared deployment and hosted preview | Own server secrets and final integration publishing |
 
 Each task gets one owner and one branch. Pick a specific screen or feature before editing; avoid two agents editing the same file. Discuss dependency changes before modifying package.json or pnpm-lock.yaml. Never copy another teammate's entire checkout over yours.
 

@@ -1,6 +1,7 @@
 import type { EventRecord } from './main.js';
 
-export type Category = 'music-nightlife' | 'arts-culture' | 'markets-shopping' | 'food-drink' | 'community-causes' | 'sports-outdoors' | 'learning-hobbies' | 'festivals-other';
+export const categories = ['music-nightlife', 'arts-culture', 'markets-shopping', 'food-drink', 'community-causes', 'sports-outdoors', 'learning-hobbies', 'festivals-other'] as const;
+export type Category = typeof categories[number];
 export type QualifiedEvent = EventRecord & { latitude: number | null; longitude: number | null; categories: Category[]; tags: string[] };
 
 export function classifyPrice(status: EventRecord['priceStatus'], text: string | null) {
@@ -11,7 +12,7 @@ export function classifyPrice(status: EventRecord['priceStatus'], text: string |
     return { status, warning: null };
 }
 
-// Only labels are inferred; event facts are never generated.
+// Only category labels are inferred; dates, prices, venues and coordinates are never generated.
 export function classifyScenes(record: Pick<EventRecord, 'title' | 'shortDescription' | 'venue'>): Category[] {
     const text = `${record.title} ${record.shortDescription} ${record.venue ?? ''}`;
     const rules: [Category, RegExp][] = [
@@ -43,8 +44,9 @@ export function timestamp(value: string | null, timezone: unknown): string | nul
     if (offset) return Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : null;
     if (typeof timezone !== 'string') return null;
     let formatter: Intl.DateTimeFormat;
-    try { formatter = new Intl.DateTimeFormat('en-US', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' }); }
-    catch { return null; }
+    try {
+        formatter = new Intl.DateTimeFormat('en-US', { timeZone: timezone, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' });
+    } catch { return null; }
     const local = (ms: number) => {
         const p = Object.fromEntries(formatter.formatToParts(ms).map(part => [part.type, part.value]));
         return Date.UTC(+p.year!, +p.month! - 1, +p.day!, +p.hour!, +p.minute!, +p.second!);
@@ -67,7 +69,8 @@ export function qualifyRecord(record: EventRecord, collectedAt: number, daysAhea
         if (/token|secret|password|api.?key/i.test(key)) throw new Error('Credential-bearing source URL');
         if (/^utm_|^(fbclid|gclid)$/i.test(key)) url.searchParams.delete(key);
     }
-    url.hash = ''; url.searchParams.sort();
+    url.hash = '';
+    url.searchParams.sort();
     if (record.extra.isOnline === true) throw new Error('Online-only event');
     const parsedEnd = timestamp(record.endDateTime, record.extra.timezone);
     const end = parsedEnd && parsedEnd > start ? parsedEnd : null;
@@ -90,10 +93,16 @@ export function qualifyRecord(record: EventRecord, collectedAt: number, daysAhea
 
 type GeocodeCandidate = { lat?: unknown; lon?: unknown; address?: { house_number?: string; road?: string; city?: string; town?: string } };
 const roadKey = (value: string) => value.toLowerCase().replace(/\b(blvd|ave|st|rd)\.?\b/g, word => ({ blvd: 'boulevard', ave: 'avenue', st: 'street', rd: 'road' })[word] ?? word).replace(/[^a-z0-9]/g, '');
-export function selectExactSfAddress(address: string, candidates: GeocodeCandidate[]) {
+export function selectExactSfAddress(address: string, candidates: unknown[]) {
     const match = /^(\d+[a-z]?)\s+([^,]+)/i.exec(address.trim());
     if (!match) return null;
-    const matches = candidates.filter(candidate => {
+    const safeCandidates = candidates.filter((candidate): candidate is GeocodeCandidate => {
+        if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return false;
+        const a = (candidate as GeocodeCandidate).address;
+        return !!a && typeof a === 'object' && typeof a.house_number === 'string' && typeof a.road === 'string'
+            && (typeof a.city === 'string' || typeof a.town === 'string');
+    });
+    const matches = safeCandidates.filter(candidate => {
         const a = candidate.address;
         return a?.house_number?.toLowerCase() === match[1]!.toLowerCase()
             && roadKey(a.road ?? '') === roadKey(match[2]!) && (a.city ?? a.town)?.toLowerCase() === 'san francisco';

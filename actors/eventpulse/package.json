@@ -1,40 +1,40 @@
 {
-    "name": "eventpulse",
-    "version": "0.1.0",
-    "type": "module",
-    "description": "EventPulse: San Francisco event aggregator for SceneShift.",
-    "engines": {
-        "node": ">=22"
-    },
-    "dependencies": {
-        "apify": "^3.7.0",
-        "@crawlee/cheerio": "^3.15.3",
-        "cheerio": "^1.0.0"
-    },
-    "devDependencies": {
-        "@apify/eslint-config": "^2.0.0",
-        "@apify/tsconfig": "^0.2.0",
-        "@types/node": "^24.0.0",
-        "eslint": "^9.29.0",
-        "eslint-config-prettier": "^10.1.5",
-        "globals": "^17.0.0",
-        "prettier": "^3.5.3",
-        "tsx": "^4.20.3",
-        "typescript": "^6.0.0",
-        "typescript-eslint": "^8.58.0",
-        "vitest": "^5.0.0"
-    },
-    "scripts": {
-        "start": "npm run start:dev",
-        "start:prod": "node dist/main.js",
-        "start:dev": "tsx src/main.ts",
-        "build": "tsc",
-        "lint": "eslint",
-        "lint:fix": "eslint --fix",
-        "format": "prettier --write .",
-        "format:check": "prettier --check .",
-        "test": "vitest run"
-    },
-    "author": "It's not you it's me",
-    "license": "ISC"
+  "name": "eventpulse",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "EventPulse: San Francisco event aggregator for SceneShift.",
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "apify": "3.7.2",
+    "@crawlee/cheerio": "3.18.2",
+    "cheerio": "1.2.0"
+  },
+  "devDependencies": {
+    "@apify/eslint-config": "2.0.6",
+    "@apify/tsconfig": "0.2.0",
+    "@types/node": "24.19.2",
+    "eslint": "9.39.5",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "vitest": "5.0.5"
+  },
+  "scripts": {
+    "start": "npm run start:dev",
+    "start:prod": "node dist/main.js",
+    "start:dev": "tsx src/main.ts",
+    "build": "tsc",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run"
+  },
+  "author": "SceneShift team",
+  "license": "ISC"
 }

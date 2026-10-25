@@ -26,10 +26,11 @@ export const upsertPage = internalMutation({
       if (review && old.collectedAt === row.collectedAt) { result.skipped++; continue; }
       const changed = old.title !== row.title || old.startAt !== row.startAt || old.endAt !== row.endAt
         || old.address !== row.address || old.venueName !== row.venueName
-        || old.latitude !== row.latitude || old.longitude !== row.longitude;
+        || old.latitude !== row.latitude || old.longitude !== row.longitude
+        || old.priceType !== row.priceType;
       // Never resurrect a rejected record; changed approved facts require review.
       const status = old.status === "approved" && changed ? "pending" : old.status;
-      await ctx.db.patch("events", old._id, { ...row, status, verified: changed ? false : old.verified });
+      await ctx.db.patch("events", old._id, { ...row, extra: { ...row.extra, ...(review && !changed ? { review } : {}) }, status, verified: changed ? false : old.verified });
       result.updated++;
     }
     return result;

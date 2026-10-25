@@ -34,6 +34,7 @@ describe('EventPulse quality gates (synthetic fixtures only)', () => {
     });
     it('accepts only exact SF address matches; refuses wrong city, street or ambiguous geometry', () => {
         const candidate = { lat: '37.784', lon: '-122.433', address: { house_number: '1805', road: 'Geary Boulevard', city: 'San Francisco' } };
+        expect(selectExactSfAddress(record.address!, [null, false, { address: { house_number: 1805 } }])).toBe(null);
         expect(selectExactSfAddress(record.address!, [candidate])).toEqual({ latitude: 37.784, longitude: -122.433 });
         expect(selectExactSfAddress(record.address!, [{ ...candidate, address: { ...candidate.address, city: 'Oakland' } }])).toBe(null);
         expect(selectExactSfAddress('1805 Other Street, San Francisco', [candidate])).toBe(null);
