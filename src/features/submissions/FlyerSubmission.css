@@ -1,0 +1,24 @@
+.flyer-panel{margin:2.5rem auto 4rem;max-width:1180px;padding:1.5rem;border:1px solid #c7d3d9;border-radius:1.25rem;background:#fff;color:#12313b;box-shadow:0 14px 40px #0a314018}
+.flyer-panel h2{margin:.2rem 0;font-size:clamp(1.6rem,3vw,2.25rem)}.flyer-panel p{color:#4a6068}
+.flyer-eyebrow{margin:0;color:#087b79!important;text-transform:uppercase;letter-spacing:.12em;font-size:.75rem;font-weight:800}
+.flyer-upload{display:grid;grid-template-columns:1fr auto;gap:.7rem;align-items:end;padding:1.1rem 0 1.5rem;border-bottom:1px solid #d6e0e4}
+.flyer-upload label,.flyer-draft-fields>label,.flyer-grid label{display:grid;gap:.35rem;color:#143640;font-weight:700}
+.flyer-upload label span,.flyer-grid small{font-size:.78rem;color:#587078;font-weight:400}
+.flyer-upload input[type=file]{grid-column:1;max-width:100%}.flyer-upload button,.flyer-token-row button,.flyer-actions button{border:0;border-radius:.65rem;padding:.75rem 1rem;background:#075f70;color:white;font-weight:750;cursor:pointer}
+.flyer-panel button:disabled{opacity:.55;cursor:wait}.flyer-review-access{padding-top:1.2rem}.flyer-review-access summary{cursor:pointer;font-weight:800}
+.flyer-review-access>label{display:block;margin-top:1rem;font-size:.85rem;font-weight:700}.flyer-token-row{display:flex;gap:.6rem;margin-top:.35rem}
+.flyer-panel input:not([type=checkbox]),.flyer-panel textarea,.flyer-panel select{width:100%;min-width:0;border:1px solid #8da2aa;border-radius:.5rem;padding:.65rem;background:#fff;color:#142f39;font:inherit}
+.flyer-panel input:focus,.flyer-panel textarea:focus,.flyer-panel select:focus{outline:3px solid #f4a43a;outline-offset:1px}
+.flyer-queue{display:grid;gap:1rem;margin-top:1.4rem}.flyer-queue h3{margin-bottom:.2rem}
+.flyer-draft{display:grid;grid-template-columns:minmax(180px,.7fr) minmax(320px,1.3fr);gap:1.2rem;padding:1rem;border:1px solid #aebfc5;border-radius:1rem;background:#f6f9f9}
+.flyer-draft-preview img{display:block;width:100%;height:auto;max-height:560px;object-fit:contain;position:sticky;top:1rem;background:#e7eff0;border-radius:.6rem}
+.flyer-draft-top{display:flex;justify-content:space-between;align-items:center}.flyer-draft-top h4{margin:.2rem 0}.flyer-draft-top span{font-size:.75rem;padding:.3rem .55rem;border-radius:99px;background:#d7e9e9;text-transform:capitalize}
+.flyer-note,.flyer-location-confirm{padding:.65rem .8rem;background:#fff1cf;border-left:3px solid #c67a09;border-radius:.3rem}
+.flyer-unresolved{display:grid;gap:.45rem;padding:.8rem;background:#fff1cf;border-radius:.6rem}.flyer-unresolved label{display:flex;gap:.5rem;align-items:center;font-size:.88rem}
+.flyer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.7rem}.flyer-draft-fields{display:grid;gap:.7rem}
+.flyer-actions{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.3rem}.flyer-actions .flyer-approve{background:#197243}.flyer-actions .flyer-reject{background:#913c37}
+@media(max-width:760px){.flyer-panel{margin:1.5rem .8rem;padding:1rem}.flyer-upload{grid-template-columns:1fr}.flyer-upload button{grid-column:1}.flyer-draft{grid-template-columns:1fr}.flyer-draft-preview img{max-height:400px;position:static}.flyer-token-row{flex-direction:column}}
+
+.flyer-queue-heading{display:flex;align-items:center;justify-content:space-between;gap:.75rem}.flyer-queue-heading h3{margin:0}.flyer-queue-heading button{border:1px solid #075f70;border-radius:.55rem;padding:.55rem .8rem;background:#fff;color:#075f70;font-weight:700;cursor:pointer}
+.flyer-occurrences{display:grid;gap:.65rem;padding:.85rem;border:1px solid #c5d4d9;border-radius:.7rem;background:#fff}.flyer-occurrences-heading,.flyer-occurrence-heading{display:flex;align-items:center;justify-content:space-between;gap:.75rem}.flyer-occurrences-heading>div{display:grid;gap:.2rem}.flyer-occurrences-heading small{max-width:48rem}.flyer-occurrences-heading button,.flyer-occurrence-heading button{border:1px solid #075f70;border-radius:.55rem;padding:.5rem .75rem;background:#fff;color:#075f70;font-weight:700;cursor:pointer}.flyer-occurrence{display:grid;gap:.6rem;padding:.75rem;border:1px solid #d6e0e4;border-radius:.6rem;background:#f6f9f9}.flyer-occurrence-heading strong{font-size:.9rem}
+.flyer-editable-fields{display:grid;gap:.7rem;min-width:0;margin:0;padding:0;border:0}.flyer-editable-fields:disabled{opacity:.72}.flyer-editable-fields:disabled input,.flyer-editable-fields:disabled textarea,.flyer-editable-fields:disabled select{cursor:wait}

@@ -40,7 +40,7 @@ pnpm dev
 ```
 The shared Convex backend is already running in the cloud. UI contributors do not need a Convex login, server API tokens, or a backend watcher. Simran publishes reviewed backend changes; Natalie can test backend branches in a personal deployment without replacing shared code/data. Do not run pnpm dev:backend or npx convex dev against the shared deployment from a feature branch. Keep .env.local uncommitted; preserve existing local settings when editing it.
 
-The map includes zoom, fit-to-events, category selection, selectable pins, event details, and source links. It reads at most 100 approved upcoming/ongoing records with valid coordinates, ordered by effective end time. Ingestion must normalize timestamps to UTC ISO strings and write `mapEndsAt` using `eventEnd(record).timestamp` in the same transaction whenever times change. Two manually reviewed market occurrences are available through the internal bootstrap. General import, extraction, and protected application moderation remain unfinished.
+The map includes zoom, fit-to-events, category selection, selectable pins, event details, and source links. It reads at most 100 approved upcoming/ongoing records with valid coordinates, ordered by effective end time. Ingestion must normalize timestamps to UTC ISO strings and write `mapEndsAt` using `eventEnd(record).timestamp` in the same transaction whenever times change. Two manually reviewed market occurrences are available through the internal bootstrap. This branch adds a pending flyer workflow; backend changes still need review and publication by the shared-deployment owner.
 
 Pins remain until the confirmed end, or an explicit estimated end. Missing/invalid ends use a clearly labeled three-hour estimate from the start; the final 30 minutes get an ending-soon symbol and amber styling. Recently sourced sold-out reports produce subdued, selectable pins instead of hiding them. Missing/stale ticket evidence stays unconfirmed. See [lifecycle rules](docs/EVENT_LIFECYCLE.md).
 
@@ -65,6 +65,29 @@ EventPulse's internal sync and public approved-event read query are implemented 
 - Repeated import does not create duplicate events.
 - Flyer upload produces editable extraction and a pending record; authorized approval creates a pin in a second browser without refresh.
 - SceneShift Lite filters the map by explicit scene/category selection.
+
+## Flyer submission and review
+
+The flyer flow uploads the original image to Convex file storage, creates a `pending`, `verified: false` event using the shared contract in `src/lib/event.ts` with `sourceType: "flyer"`, and schedules Claude extraction. The source image storage ID and any unresolved fields remain attached to the event. Drafts stay out of `events:listApproved` and the map until an authorized reviewer approves them. Venue matches are limited to the checked local list in `convex/missionVenues.ts`; unrecognized venues need reviewer-confirmed coordinates.
+
+### Configure the Convex deployment
+
+1. Set `ANTHROPIC_API_KEY` in Convex Deployment Settings → Environment Variables for the deployment running the app. The CLI also supports interactive entry: `npx convex env set ANTHROPIC_API_KEY`. Never put this key in `.env.local`, Vite variables, or Git.
+2. Set a long random `SCENESHIFT_MODERATOR_TOKEN` in the same deployment. Reviewer actions fail closed when it is missing. This prototype uses a shared bearer token; keep it with the authorized reviewer.
+3. For a personal development deployment, set the app's `VITE_CONVEX_URL` to that deployment and add both secrets there. The shared deployment belongs to Simran; coordinate and get the PR reviewed before publishing backend changes to it.
+4. Check which variables are configured without printing their values with `npx convex env list --names-only`.
+
+Convex environment variables are set per deployment. The dashboard and interactive CLI setup are documented in the [Convex environment variable guide](https://docs.convex.dev/production/environment-variables).
+
+### Try one flyer
+
+1. With the repo checked out on this feature branch, set `VITE_CONVEX_URL` in your local `.env.local`, then run `pnpm install --frozen-lockfile` and `pnpm dev`.
+2. In **Share an event flyer**, choose one JPEG, PNG, WebP, or GIF image under 5 MB and submit it.
+3. Open **Reviewer access**, enter the authorized moderator token, and load the queue. The original image, extraction status, missing fields, and editable draft appear there.
+4. Correct any uncertain information. Confirm venue coordinates; approve only when the required details and all uncertainty flags are resolved. Rejected events remain unpublished.
+5. Check the map: only a future approved event with confirmed coordinates appears.
+
+The sample Head West flyer supplied with the task prints “Sunday, November 1st” and “11AM” but no year. Claude should leave the date unresolved. Enter a year only after confirming it from the organizer or another reliable source.
 
 ## Collaboration
 1. Clone repo on each MacBook.
