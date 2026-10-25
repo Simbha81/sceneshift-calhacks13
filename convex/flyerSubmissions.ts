@@ -131,8 +131,8 @@ export const extract = internalAction({
     for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
     const image = btoa(binary);
     const prompt = `Read this event flyer. Extract only facts visibly printed on it. Never infer a year, date, time, venue, address, or category. Use null for missing/unclear values. Return only JSON with this exact shape:
-{"title":string|null,"description":string|null,"date":"YYYY-MM-DD"|null,"startTime":"HH:mm"|null,"endTime":"HH:mm"|null,"venueName":string|null,"address":string|null,"category":${JSON.stringify(categories)}|null,"unresolvedFields":string[],"notes":string}
-Use unresolvedFields from title,description,date,startTime,endTime,venueName,address,category when absent or unclear. Date must include a year to return a date. Times use 24-hour local time. Description should be concise. Category must be one of the listed values.`;
+{"title":string|null,"description":string|null,"date":"YYYY-MM-DD"|null,"startTime":"HH:mm"|null,"endTime":"HH:mm"|null,"venueName":string|null,"address":string|null,"category":string|null,"unresolvedFields":string[],"notes":string}
+Allowed categories: ${categories.join(", ")}. Use unresolvedFields from title,description,date,startTime,endTime,venueName,address,category when absent or unclear. Date must include a year to return a date. Times use 24-hour local time. Description should be concise. Category must be one of the listed values.`;
     let response: Response;
     try {
       response = await fetch("https://api.anthropic.com/v1/messages", { method: "POST",
