@@ -102,3 +102,44 @@ test("API starts use one bounded bearer-authenticated POST and never expose tran
     expect(fetchMock).toHaveBeenCalledTimes(2);
   } finally { vi.unstubAllGlobals(); vi.unstubAllEnvs(); }
 });
+
+test("impossible calendar dates are rejected even when they contain a UTC offset", () => {
+  for (const startDateTime of ["2026-02-30T12:00:00Z", "2026-02-29T12:00:00-0800", "2026-10-25T24:00:00Z"]) {
+    expect(() => normalizeActorItem({ ...row, startDateTime }, "2026-10-25T00:00:00Z")).toThrow();
+  }
+});
+
+test("source-backed price/category corrections clear only price warnings and preserve aliases", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(internal.apifyStore.upsertPage, { items: [{ ...row, priceStatus: "paid", priceText: "0.00 USD", latitude: 37.78, longitude: -122.4 }] });
+  const doc = await t.run(async ctx => (await ctx.db.query("events").first())!);
+  const args = { eventId: doc._id, expectedCollectedAt: doc.collectedAt!, evidenceUrls: ["https://example.org/event"], notes: "Synthetic organizer price check" };
+  await expect(t.mutation(internal.apifyReview.approve, args)).rejects.toThrow("Resolve import warnings");
+  await t.mutation(internal.apifyReview.approve, { ...args, corrections: { priceType: "free", priceText: "Free admission", categories: ["music-nightlife"] } });
+  const approved = await t.run(async ctx => (await ctx.db.query("events").first())!);
+  expect(approved.priceType).toBe("free"); expect(approved.priceStatus).toBe("free");
+  expect(approved.categories).toEqual(["music-nightlife"]);
+  expect(approved.extra).toHaveProperty("review.corrections.priceType", "free");
+  await t.mutation(internal.apifyStore.upsertPage, { items: [{ ...row, priceStatus: "paid", priceText: "10.00 USD", latitude: 37.78, longitude: -122.4, collectedAt: "2026-10-25T01:00:00Z" }] });
+  const recollected = await t.run(async ctx => (await ctx.db.query("events").first())!);
+  expect(recollected.status).toBe("pending");
+  expect(recollected.extra).toHaveProperty("previousReview.corrections.priceType", "free");
+  const unresolved = { ...row, url: "https://example.org/other", priceStatus: "paid", priceText: "0.00 USD" };
+  await t.mutation(internal.apifyStore.upsertPage, { items: [unresolved] });
+  const missing = await t.run(async ctx => (await ctx.db.query("events").withIndex("by_url", q => q.eq("url", unresolved.url)).unique())!);
+  await expect(t.mutation(internal.apifyReview.approve, { ...args, eventId: missing._id, expectedCollectedAt: missing.collectedAt!, corrections: { priceType: "free" } })).rejects.toThrow("Resolve import warnings");
+});
+
+test("reviewed time correction updates public aliases and the visibility index", async () => {
+  const t = convexTest(schema, modules);
+  await t.mutation(internal.apifyStore.upsertPage, { items: [{ ...row, endDateTime: null, latitude: 37.78, longitude: -122.4 }] });
+  const doc = await t.run(async ctx => (await ctx.db.query("events").first())!);
+  const args = { eventId: doc._id, expectedCollectedAt: doc.collectedAt!, evidenceUrls: ["https://example.org/organizer"], notes: "Synthetic organizer check distinguishes doors and show" };
+  await expect(t.mutation(internal.apifyReview.approve, { ...args, corrections: { startAt: "2030-02-30T12:00:00.000Z" } })).rejects.toThrow();
+  const startAt = "2030-01-02T05:00:00.000Z";
+  await t.mutation(internal.apifyReview.approve, { ...args, corrections: { startAt } });
+  const approved = await t.run(async ctx => (await ctx.db.query("events").first())!);
+  expect(approved.startDateTime).toBe(startAt);
+  expect(approved.mapEndsAt).toBe(Date.parse(startAt) + 3 * 3600000);
+  expect(approved.endAt).toBe(null);
+});

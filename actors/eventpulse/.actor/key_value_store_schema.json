@@ -1,0 +1,30 @@
+{
+  "actorKeyValueStoreSchemaVersion": 1,
+  "title": "EventPulse diagnostics",
+  "collections": {
+    "diagnostics": {
+      "title": "Source and validation diagnostics",
+      "key": "DIAGNOSTICS",
+      "contentTypes": [
+        "application/json"
+      ],
+      "jsonSchema": {
+        "type": "object",
+        "properties": {
+          "sources": {
+            "type": "object"
+          },
+          "accepted": {
+            "type": "integer"
+          },
+          "rejected": {
+            "type": "array"
+          },
+          "geocodeRequests": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

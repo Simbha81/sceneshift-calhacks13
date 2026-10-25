@@ -11,6 +11,9 @@ Help people find their place in San Francisco's local culture. SceneShift brings
 
 **Out of scope:** personalized public accounts, saved profiles, avatars/backgrounds, Scene Buzz, friends/DMs, advanced RSVP/reputation systems, user-created communities, and sophisticated recommendations. Secure importer/moderator authorization remains necessary.
 
+## Figma concept versus implemented app
+Natalia's Figma prototype may include simulated accounts and social interactions to show the future product vision. These interactions remain design concepts; the hackathon app implements account-free discovery, EventPulse data, Claude flyer-to-map, and SceneShift Lite. Do not build account or social backends from the mockup. Preserve direct access to working flows without login. Any concept-only controls included in the coded UI must be labeled as planned or unavailable. Demo and submission materials must identify which interactions work only in Figma.
+
 ## Sponsor targets
 We aim to win every track we enter, explicitly including Claude. Meaningful product use is the priority: Apify supplies trustworthy events; Claude interprets flyers; Convex powers shared state and reactive publishing; Figma supports intentional design, prototyping, and handoff.
 
@@ -18,20 +21,20 @@ Read [sponsor gates and evidence](docs/SPONSOR_TRACKS.md) before treating any tr
 
 ## Ownership
 The working task split:
-- **Simran — Technical integration, Apify Actor, Claude extraction, deployment.** `actors/`, server-side extraction integration, review pull requests.
+- **Simran — Technical integration, Apify Actor quality, deployment.** `actors/`, server-side extraction integration, review pull requests.
 - **Natalia — Figma and frontend:** `src/` interactive map, event cards, SceneShift Lite, uploader/review screens.
-- **Natalie — Convex backend and delivery:** `convex/` schema, queries, import, submission approvals, live updates; QA and track submissions.
+- **Natalie — Claude flyer ingestion, Convex backend and delivery:** `convex/` schema, queries, import, submission approvals, live updates; QA and track submissions.
 
 ## Shared event contract
-See `src/lib/event.ts`. Keep Actor output, transport, and Convex storage consistent. Preserve original listing URLs, source identifiers, moderation status, and uncertainty. Never fabricate dates, coordinates, prices, or attendance. The current contract does not yet include collection timestamps; add and document that field when implementing ingestion.
+See `src/lib/event.ts`. Keep Actor output, transport, and Convex storage consistent. Preserve original listing URLs, source identifiers, moderation status, and uncertainty. Never fabricate dates, coordinates, prices, or attendance. The Apify importer stores collectedAt and quality/provenance metadata as storage extensions to the shared core event contract.
 
 ## Development tools and API budget
-Simran and Natalie are using Codex for development. Claude remains the planned server-side flyer extraction API. Simran reports $50 in API credits; verify the active Console balance, restrictions/expiry, and one image request before considering access ready. A free Claude chat account and Console API access are separate. Preserve credits for the product integration and its tests.
+Simran uses Codex; Natalie now uses Claude on her laptop and owns flyer ingestion. Claude remains the planned server-side flyer extraction API. Simran reports $50 in API credits; verify the active Console balance, restrictions/expiry, and one image request before considering access ready. A free Claude chat account and Console API access are separate. Preserve credits for the product integration and its tests.
 
 ## Starting the app
 React + TypeScript + Vite, Convex, and MapLibre GL JS are implemented locally. MapLibre renders the SF map; OpenStreetMap supplies the prototype basemap. Figma supports design and handoff alongside implementation.
 
-**Teammates: read [Start here](docs/TEAM_START_HERE.md) first.** It explains the shared database, fresh/existing checkouts, branch rules, owners, and agent instructions. PR #3 must be merged before main contains the current integration.
+**Teammates: read [Start here](docs/TEAM_START_HERE.md) first.** It explains the shared database, fresh/existing checkouts, branch rules, owners, and agent instructions. PR #3 is merged; main contains the verified foundation and initial integration.
 
 Requires Node 22.12+ and pnpm 11. For frontend/UI work, set VITE_CONVEX_URL in your local .env.local to https://bold-lobster-565.convex.cloud, then:
 ```sh

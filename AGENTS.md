@@ -15,6 +15,9 @@ Build in this order:
 
 No personalized public user accounts, saved profiles, avatars/backgrounds, friends/DMs, user-created communities, Scene Buzz, advanced reputation/RSVP systems, or sophisticated recommendation AI. Protected importer and moderator authorization is still required; this is distinct from public personalized accounts.
 
+## Figma concept and working application
+Natalia's Figma prototype may retain simulated user accounts and social interactions as future-product concepts. Keep them in Figma without implementing account authentication, profiles, social storage, or social APIs for the hackathon app. The working app remains account-free discovery, EventPulse data, Claude flyer-to-map, and SceneShift Lite. Figma-only interactions must not require login or block working app flows. If a concept-only element is carried into the coded UI, clearly label it as planned or unavailable and do not simulate a successful backend action. In demos and submission materials, distinguish interactive Figma concepts from implemented app functionality. Protected moderator access remains required.
+
 ## Sponsor goals are project requirements
 The team aims to win every track entered, explicitly including Claude. Meaningful product use is the priority. Apify, Claude, Convex, and Figma must each have a clear, demonstrable contribution. Do not treat installing a package, generating code with a tool, or mentioning a sponsor as proof that its track is covered.
 
@@ -23,7 +26,7 @@ Use docs/SPONSOR_TRACKS.md to distinguish official requirements, our engineering
 Record actual tool use and Figma stages during the build. Never fabricate tests, user feedback, model quality, or performance numbers. Preserve source URLs, timestamps, uncertainties, and real model results.
 
 ## Development tools and Claude runtime
-Simran and Natalie are using Codex for development. Natalie reports Claude is not working for her development workflow. Keep Claude as the planned in-app flyer extraction API; using Codex to implement the app does not remove that role. Simran reports $50 in Claude API credits; confirm active balance, restrictions, and expiry in the Console and test a real image request before treating API access as verified. Never place an API key in chat, client code, or the repository.
+Simran uses Codex for development. Natalie now uses Claude on her own laptop and owns flyer ingestion; do not overlap her feature files. Simran owns EventPulse quality and integration. Keep Claude as the planned in-app flyer extraction API; using Codex to implement the app does not remove that role. Simran reports $50 in Claude API credits; confirm active balance, restrictions, and expiry in the Console and test a real image request before treating API access as verified. Never place an API key in chat, client code, or the repository.
 
 ## Implementation discipline
 The repository contains a runnable React/Vite/MapLibre app and a Convex backend with tested real EventPulse ingestion and protected internal review. Verify live state and current GitHub branch before reporting progress. Keep shared transport, Actor output, and Convex schema consistent. Never invent coordinates, dates, prices, or attendance. Track source retrieval time and deduplication identity; imported records preserve collectedAt and flag unresolved fields.
@@ -36,7 +39,7 @@ The official Devpost overview checked October 23, 2026 lists submission October 
 
 ## Shared backend and team synchronization
 
-Read docs/TEAM_START_HERE.md. Shared demo development deployment: bold-lobster-565; public frontend URL https://bold-lobster-565.convex.cloud. UI-only work runs pnpm dev and must not start convex dev or deploy backend code. Simran is the sole shared-backend publisher during integration. Backend branches test in personal deployments and use PRs; never overwrite the shared deployment from a teammate's feature branch. Coordinate schema, shared event types, package files, App wiring, and shared styles before concurrent edits. Preserve teammates' existing checkouts and databases. Main becomes the current team baseline after PR #3 is merged.
+Read docs/TEAM_START_HERE.md. Shared demo development deployment: bold-lobster-565; public frontend URL https://bold-lobster-565.convex.cloud. UI-only work runs pnpm dev and must not start convex dev or deploy backend code. Simran is the sole shared-backend publisher during integration. Backend branches test in personal deployments and use PRs; never overwrite the shared deployment from a teammate's feature branch. Coordinate schema, shared event types, package files, App wiring, and shared styles before concurrent edits. Preserve teammates' existing checkouts and databases. PR #3 and EventPulse quality PR #5 are merged; main is the shared baseline. Actor 0.1.2 is live latest. Natalie’s flyer PR #4 remains separate pending review.
 
 <!-- convex-ai-start -->
 

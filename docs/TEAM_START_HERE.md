@@ -2,7 +2,7 @@
 
 ## Team baseline
 
-Use `main` after PR #3 is merged. Before that merge, the current ingestion work lives on `feat/eventpulse-convex-sync`; pulling main alone does not include it. Do not create a second application or copy files between repositories.
+PR #3 and EventPulse quality PR #5 are merged; use `main` as the shared baseline. Do not create a second application or copy files between repositories.
 
 - Repository: https://github.com/Simbha81/sceneshift-calhacks13
 - Shared development backend: `bold-lobster-565`
@@ -16,7 +16,7 @@ This development deployment is the hackathon integration/demo database. Producti
 
 Requires Node 22.12+ and pnpm 11. Clone the repository once, or use the existing checkout. Check `git status` first. If there are uncommitted changes, preserve them with Simran before switching branches; do not reset, clean, or overwrite them.
 
-Once PR #3 is merged and the working tree is clean:
+Once the working tree is clean:
 
 ```sh
 git switch main
@@ -54,10 +54,13 @@ Simran is the only publisher to bold-lobster-565 during integration. Coordinate 
 | Owner | Current focus | Coordination boundary |
 | --- | --- | --- |
 | Natalia | Figma, responsive map/cards, scene/category filters, upload/review screen UI | Own frontend feature folders; coordinate App wiring and shared styles |
-| Natalie | Backend PRs, pending/review flow, QA, sponsor evidence | Coordinate convex/schema.ts, generated API changes, and shared event types before editing |
-| Simran | Claude API integration, Actor quality, integration review, shared deployment and hosted preview | Own server secrets and final integration publishing |
+| Natalie | Claude flyer ingestion, editable review, pending submissions, QA | Coordinate convex/schema.ts, generated API changes, and shared event types before editing |
+| Simran | EventPulse quality, integration review, shared deployment and hosted preview | Own server secrets and final integration publishing |
 
 Each task gets one owner and one branch. Pick a specific screen or feature before editing; avoid two agents editing the same file. Discuss dependency changes before modifying package.json or pnpm-lock.yaml. Never copy another teammate's entire checkout over yours.
+
+## Figma handoff scope
+Natalia's Figma mockup can retain simulated accounts and social features as future-product concepts. The working hackathon app remains account-free discovery, EventPulse data, Claude flyer-to-map, and SceneShift Lite. Reuse existing event types, API calls and moderator protection; do not build public account or social backends. Keep working flows available without login. Label any concept-only controls carried into coded screens as planned or unavailable. In the demo, identify which interactions exist only in Figma.
 
 ## Before opening a PR
 
@@ -74,7 +77,7 @@ After each merge, teammates update a clean main with git pull --ff-only and bran
 
 ## Instructions to give your coding agent
 
-> Read AGENTS.md, docs/TEAM_START_HERE.md, docs/TEAM_WORKFLOW.md, and docs/SPONSOR_TRACKS.md. Work only on my assigned task and branch. Use the existing React/Vite/MapLibre/Convex project. UI work connects to https://bold-lobster-565.convex.cloud through VITE_CONVEX_URL and runs pnpm dev only. Do not scaffold another project, deploy backend code, start a Convex watcher, modify server secrets/data, expand scope, or edit another owner's files without coordination. Preserve existing work, open a PR, and report actual tests and blockers. Claude remains the in-app flyer extraction API; public accounts and social features are out of scope.
+> Read AGENTS.md, docs/TEAM_START_HERE.md, docs/TEAM_WORKFLOW.md, and docs/SPONSOR_TRACKS.md. Work only on my assigned task and branch. Use the existing React/Vite/MapLibre/Convex project. UI work connects to https://bold-lobster-565.convex.cloud through VITE_CONVEX_URL and runs pnpm dev only. Do not scaffold another project, deploy backend code, start a Convex watcher, modify server secrets/data, expand scope, or edit another owner's files without coordination. Preserve existing work, open a PR, and report actual tests and blockers. Claude remains the in-app flyer extraction API; public accounts and social features remain Figma-only future-product concepts; do not implement their backends or let simulated login block the working app.
 
 ## Access
 

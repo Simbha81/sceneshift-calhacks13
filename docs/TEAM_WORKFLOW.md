@@ -15,11 +15,14 @@ E. Boosts only after A–D are stable and submission evidence is ready. Otherwis
 
 Figma design supports the work throughout; elaborate styling does not block the map foundation. Public browsing requires no personalized account. Protected importer/moderator access remains required.
 
+## Figma handoff boundary
+Natalia may retain simulated account and social interactions in the Figma prototype as future-product concepts. Integrate the map, event cards, scene filters, flyer upload and review with the existing React/MapLibre/Convex functions. Do not implement account or social backends from the mockup. Account-free browsing and the complete flyer-to-map flow must remain accessible without a public login. Label any concept-only controls carried into the app as planned or unavailable; do not present simulated social actions as saved data. Distinguish Figma-only interactions from implemented functionality in the demo and submission.
+
 ## Simran
 - [x] React/TypeScript/Vite + MapLibre foundation initialized.
 - [ ] Develop reusable EventPulse Actor with sources, validation, duplicate handling, collection timestamps, and documented output.
 - [ ] Test two reachable, supported public sources and preserve cloud run/dataset evidence.
-- [ ] Build server-side Claude structured flyer extraction; flag ambiguous/missing details.
+- [ ] Integrate Natalie's Claude flyer ingestion PR; preserve its uncertainties, pending review and map publication contract.
 - [x] Protected internal Convex ingestion runs against real Actor results; repeat import inserts no duplicates.
 - [ ] Lead integration, deployment, and full demo verification.
 
@@ -31,6 +34,7 @@ Figma design supports the work throughout; elaborate styling does not block the 
 - [ ] Polish after the complete functional path works.
 
 ## Natalie
+- [ ] Own Claude flyer ingestion and editable intake on feature/natalie-flyer-intake; coordinate visual components with Natalia.
 - [ ] Implement Convex schema, approved-events query, secure idempotent import, storage, and pending submissions.
 - [ ] Implement protected approval/rejection and reliable map publication.
 - [ ] Test two-session live updates, duplicate ingestion, and unauthorized approval rejection.
