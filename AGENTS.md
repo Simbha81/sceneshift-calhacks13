@@ -1,6 +1,6 @@
 # SceneShift project instructions
 
-Read README.md, docs/TEAM_WORKFLOW.md, and docs/SPONSOR_TRACKS.md before implementation or changes to scope.
+Read README.md, docs/TEAM_START_HERE.md, docs/TEAM_WORKFLOW.md, and docs/SPONSOR_TRACKS.md before implementation or changes to scope.
 
 ## Product and audience
 Help people find their place in San Francisco's local culture, especially transplants seeking community. Help independent artists, vendors, small businesses, and organizers reach audiences beyond their existing followers.
@@ -26,7 +26,7 @@ Record actual tool use and Figma stages during the build. Never fabricate tests,
 Simran and Natalie are using Codex for development. Natalie reports Claude is not working for her development workflow. Keep Claude as the planned in-app flyer extraction API; using Codex to implement the app does not remove that role. Simran reports $50 in Claude API credits; confirm active balance, restrictions, and expiry in the Console and test a real image request before treating API access as verified. Never place an API key in chat, client code, or the repository.
 
 ## Implementation discipline
-The React/Vite + MapLibre foundation runs locally against the Convex approved-events query. The database is empty; real pins, ingestion, two-session updates, and hosted deployment remain unverified. Verify actual status before reporting progress. Keep shared transport, Actor output, and Convex schema consistent. Never invent coordinates, dates, prices, or attendance. Track source retrieval time and deduplication identity; resolve the timestamp gap in the current transport contract when implementing ingestion.
+The repository contains a runnable React/Vite/MapLibre app and a Convex backend with tested real EventPulse ingestion and protected internal review. Verify live state and current GitHub branch before reporting progress. Keep shared transport, Actor output, and Convex schema consistent. Never invent coordinates, dates, prices, or attendance. Track source retrieval time and deduplication identity; imported records preserve collectedAt and flag unresolved fields.
 
 Keep secrets server-side and out of commits. Follow the team ownership and PR workflow. New PRs must state their scope milestone, sponsor contribution, evidence, and blockers.
 
@@ -34,4 +34,20 @@ Keep secrets server-side and out of commits. Follow the team ownership and PR wo
 The official Devpost overview checked October 23, 2026 lists submission October 25 at 9:00 AM Pacific. Do not use Sunday afternoon as the code/submission deadline. Recheck official announcements for sponsor-specific deadlines and any changes.
 
 
-When working on Convex code, read `convex/_generated/ai/guidelines.md` first. Run `npx convex ai-files install` if guidelines or `.agents/skills` are missing.
+## Shared backend and team synchronization
+
+Read docs/TEAM_START_HERE.md. Shared demo development deployment: bold-lobster-565; public frontend URL https://bold-lobster-565.convex.cloud. UI-only work runs pnpm dev and must not start convex dev or deploy backend code. Simran is the sole shared-backend publisher during integration. Backend branches test in personal deployments and use PRs; never overwrite the shared deployment from a teammate's feature branch. Coordinate schema, shared event types, package files, App wiring, and shared styles before concurrent edits. Preserve teammates' existing checkouts and databases. Main becomes the current team baseline after PR #3 is merged.
+
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->

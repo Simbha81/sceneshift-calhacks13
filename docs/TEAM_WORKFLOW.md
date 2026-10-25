@@ -2,6 +2,10 @@
 
 Read ../AGENTS.md and SPONSOR_TRACKS.md before implementing or changing scope. Work toward a deployable, inspectable demo and meaningful contributions from Apify, Claude, Convex, and Figma.
 
+## Shared integration policy
+
+Read TEAM_START_HERE.md for setup and branch instructions. The shared demo backend is bold-lobster-565. All UI checkouts use its public VITE_CONVEX_URL and run pnpm dev without a Convex watcher. Simran is the sole publisher to the shared backend; backend contributors use personal deployments for isolated tests and submit PRs. Do not start concurrent shared-deployment watchers from different branches. Git pulls synchronize code, not database contents or secrets.
+
 ## Build order and release gates
 A. Deployable map reads approved events from Convex and displays details/source links.
 B. EventPulse outputs genuine, attributed, validated events; repeated imports do not duplicate them.
@@ -12,11 +16,11 @@ E. Boosts only after A–D are stable and submission evidence is ready. Otherwis
 Figma design supports the work throughout; elaborate styling does not block the map foundation. Public browsing requires no personalized account. Protected importer/moderator access remains required.
 
 ## Simran
-- [ ] Choose frontend toolchain with team and initialize dependencies.
+- [x] React/TypeScript/Vite + MapLibre foundation initialized.
 - [ ] Develop reusable EventPulse Actor with sources, validation, duplicate handling, collection timestamps, and documented output.
 - [ ] Test two reachable, supported public sources and preserve cloud run/dataset evidence.
 - [ ] Build server-side Claude structured flyer extraction; flag ambiguous/missing details.
-- [ ] Connect ingestion to Natalie's authenticated Convex import path.
+- [x] Protected internal Convex ingestion runs against real Actor results; repeat import inserts no duplicates.
 - [ ] Lead integration, deployment, and full demo verification.
 
 ## Natalia
