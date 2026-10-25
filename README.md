@@ -31,14 +31,14 @@ Simran and Natalie are using Codex for development. Claude remains the planned s
 ## Starting the app
 React + TypeScript + Vite, Convex, and MapLibre GL JS are implemented locally. MapLibre renders the SF map; OpenStreetMap supplies the prototype basemap. Figma supports design and handoff alongside implementation.
 
-Requires Node 22.12+ and pnpm 11:
+**Teammates: read [Start here](docs/TEAM_START_HERE.md) first.** It explains the shared database, fresh/existing checkouts, branch rules, owners, and agent instructions. PR #3 must be merged before main contains the current integration.
+
+Requires Node 22.12+ and pnpm 11. For frontend/UI work, set VITE_CONVEX_URL in your local .env.local to https://bold-lobster-565.convex.cloud, then:
 ```sh
 pnpm install --frozen-lockfile
-pnpm dev:backend
-# In a second terminal:
 pnpm dev
 ```
-Sign in to Convex and select the team/project. Convex writes local configuration to `.env.local`; never commit it. Use individual dev deployments unless deliberately coordinating shared test data. Without `VITE_CONVEX_URL`, the app shows an empty preview.
+The shared Convex backend is already running in the cloud. UI contributors do not need a Convex login, server API tokens, or a backend watcher. Simran publishes reviewed backend changes; Natalie can test backend branches in a personal deployment without replacing shared code/data. Do not run pnpm dev:backend or npx convex dev against the shared deployment from a feature branch. Keep .env.local uncommitted; preserve existing local settings when editing it.
 
 The map includes zoom, fit-to-events, category selection, selectable pins, event details, and source links. It reads at most 100 approved upcoming/ongoing records with valid coordinates, ordered by effective end time. Ingestion must normalize timestamps to UTC ISO strings and write `mapEndsAt` using `eventEnd(record).timestamp` in the same transaction whenever times change. Two manually reviewed market occurrences are available through the internal bootstrap. General import, extraction, and protected application moderation remain unfinished.
 
