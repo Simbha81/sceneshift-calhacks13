@@ -287,7 +287,7 @@ for (const record of [ ...eventbriteItems.map(mapEventbrite), ...partifulItems.m
     }
 }
 
-if (input.resolveCoordinates !== false && maxGeocodes > 0 && records.some(record => record.latitude === null || record.longitude === null)) {
+if (input.resolveCoordinates === true && maxGeocodes > 0 && records.some(record => record.latitude === null || record.longitude === null)) {
     const cache = await Actor.openKeyValueStore('sceneshift-eventpulse-geocodes');
     let lastRequest = 0;
     for (const record of records) {

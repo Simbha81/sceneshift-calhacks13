@@ -96,8 +96,8 @@
     "resolveCoordinates": {
       "title": "Resolve missing coordinates",
       "type": "boolean",
-      "description": "Try bounded exact-address Nominatim lookups; unresolved/ambiguous results remain null. Run only one geocoding Actor at a time.",
-      "default": true
+      "description": "Opt-in prototype exact-address lookup; requires one geocoding run at a time across all callers. Off by default; unresolved listings remain pending.",
+      "default": false
     },
     "maxGeocodeRequests": {
       "title": "Maximum geocoder requests",

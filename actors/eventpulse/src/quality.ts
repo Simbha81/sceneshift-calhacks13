@@ -16,8 +16,8 @@ export function classifyPrice(status: EventRecord['priceStatus'], text: string |
 export function classifyScenes(record: Pick<EventRecord, 'title' | 'shortDescription' | 'venue'>): Category[] {
     const text = `${record.title} ${record.shortDescription} ${record.venue ?? ''}`;
     const rules: [Category, RegExp][] = [
-        ['music-nightlife', /\b(music|concert|live band|dj|dance floor|nightclub|the fillmore|the independent|bottom of the hill)\b/i],
-        ['arts-culture', /\b(art exhibition|gallery|museum|film screening|theater|theatre|cultural|culture)\b/i],
+        ['music-nightlife', /\b(music|concert|live band|dj|dance floor|nightclub|the fillmore|the independent|bottom of the hill|the regency ballroom)\b/i],
+        ['arts-culture', /\b(exhibition|gallery|museum|film screening|theater|theatre|cultural|culture)\b/i],
         ['markets-shopping', /\b(market|vendors|craft fair|flea|shopping|pop-up shop)\b/i],
         ['food-drink', /\b(food|tasting|dinner|culinary|wine|brewery)\b/i],
         ['community-causes', /\b(community|volunteer|fundraiser|mutual aid)\b/i],

@@ -6,7 +6,7 @@ import { isMapVisible, eventValidator } from "../src/lib/eventValidation";
 
 // Admin CLI/dashboard only; this does not expose public moderation permissions.
 export const approve = internalMutation({
-  args: { eventId: v.id("events"), expectedCollectedAt: v.string(), evidenceUrls: v.array(v.string()), notes: v.string(), corrections: v.optional(v.object({ priceType: v.optional(eventValidator.fields.priceType), priceText: v.optional(v.string()), categories: v.optional(eventValidator.fields.categories), description: v.optional(v.string()) })) },
+  args: { eventId: v.id("events"), expectedCollectedAt: v.string(), evidenceUrls: v.array(v.string()), notes: v.string(), corrections: v.optional(v.object({ priceType: v.optional(eventValidator.fields.priceType), priceText: v.optional(v.string()), categories: v.optional(eventValidator.fields.categories), description: v.optional(v.string()), startAt: v.optional(v.string()), endAt: v.optional(v.union(v.string(), v.null())) })) },
   returns: v.null(),
   handler: async (ctx, args) => {
     if (!args.notes.trim() || args.notes.length > 2000 || args.evidenceUrls.length < 1 || args.evidenceUrls.length > 5) {
@@ -24,13 +24,20 @@ export const approve = internalMutation({
     const warnings = Array.isArray(extra.warnings) ? extra.warnings.filter(warning =>
       !(corrections.priceType !== undefined && typeof warning === "string" && /price/i.test(warning))) : [];
     if (warnings.length) throw new Error("Resolve import warnings before approval");
-    const mapEndsAt = eventEnd(event)?.timestamp ?? null;
-    if (!isMapVisible({ ...event, status: "approved" }, Date.now())) throw new Error("Event is expired or has unresolved coordinates/timing");
+    for (const value of [corrections.startAt, corrections.endAt]) {
+      if (value !== undefined && value !== null && (!Number.isFinite(Date.parse(value)) || new Date(value).toISOString() !== value)) throw new Error("Corrections require canonical UTC timestamps");
+    }
+    const corrected = { ...event, ...corrections };
+    if (corrected.endAt && corrected.endAt <= corrected.startAt) throw new Error("End must follow start");
+    const mapEndsAt = eventEnd(corrected)?.timestamp ?? null;
+    if (!isMapVisible({ ...corrected, status: "approved" }, Date.now())) throw new Error("Event is expired or has unresolved coordinates/timing");
     await ctx.db.patch(event._id, { ...corrections,
       ...(corrections.priceType !== undefined ? { priceStatus: corrections.priceType } : {}),
+      ...(corrections.startAt !== undefined ? { startDateTime: corrections.startAt } : {}),
+      ...(corrections.endAt !== undefined ? { endDateTime: corrections.endAt } : {}),
       ...(corrections.description !== undefined ? { shortDescription: corrections.description } : {}),
       status: "approved", verified: true, mapEndsAt,
-      extra: { ...extra, warnings, review: { evidenceUrls, notes: args.notes.trim(), corrections, originalPriceType: event.priceType, checkedAt: new Date().toISOString() } } });
+      extra: { ...extra, warnings, review: { evidenceUrls, notes: args.notes.trim(), corrections, originalPriceType: event.priceType, originalStartAt: event.startAt, checkedAt: new Date().toISOString() } } });
     return null;
   },
 });
