@@ -14,6 +14,6 @@ type DraftFields = Pick<FlyerDraft, "title" | "description" | "date" | "startTim
   "venueName" | "address" | "category" | "latitude" | "longitude" | "unresolvedFields" | "reviewedFields">;
 export const generateFlyerUploadUrl = makeFunctionReference<"mutation", Record<string, never>, string>("flyerSubmissions:generateUploadUrl");
 export const submitFlyer = makeFunctionReference<"mutation", { storageId: Id<"_storage"> }, Id<"flyerSubmissions">>("flyerSubmissions:submit");
-export const listPendingFlyers = makeFunctionReference<"query", { moderatorToken: string }, FlyerDraft[]>("flyerSubmissions:listPending");
-export const updateFlyerDraft = makeFunctionReference<"mutation", { moderatorToken: string; submissionId: Id<"flyerSubmissions"> } & DraftFields, null>("flyerSubmissions:updateDraft");
-export const reviewFlyer = makeFunctionReference<"mutation", { moderatorToken: string; submissionId: Id<"flyerSubmissions">; decision: "approved" | "rejected" }, null>("flyerSubmissions:review");
+export const listPendingFlyers = makeFunctionReference<"action", { moderatorToken: string }, FlyerDraft[]>("flyerSubmissions:listPending");
+export const updateFlyerDraft = makeFunctionReference<"action", { moderatorToken: string; submissionId: Id<"flyerSubmissions"> } & DraftFields, null>("flyerSubmissions:updateDraft");
+export const reviewFlyer = makeFunctionReference<"action", { moderatorToken: string; submissionId: Id<"flyerSubmissions">; decision: "approved" | "rejected" }, null>("flyerSubmissions:review");
