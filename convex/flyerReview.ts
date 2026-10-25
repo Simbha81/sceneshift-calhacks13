@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { action, env } from "./_generated/server";
 import { internal } from "./_generated/api";
+import { findAddress } from "./flyerGeocoding";
 
 const category = v.union(
   v.literal("music-nightlife"), v.literal("arts-culture"), v.literal("markets-shopping"),
@@ -51,5 +52,15 @@ export const review = action({
     const { moderatorToken, submissionId, decision } = args;
     checkModerator(moderatorToken);
     return await ctx.runMutation(internal.flyerSubmissions.reviewInternal, { submissionId, decision });
+  },
+});
+
+// Explicit reviewer search only; no autocomplete or automatic publication.
+export const lookupAddress = action({
+  args: { moderatorToken: v.string(), address: v.string() },
+  returns: v.array(v.object({ label: v.string(), latitude: v.number(), longitude: v.number() })),
+  handler: async (_ctx, { moderatorToken, address }) => {
+    checkModerator(moderatorToken);
+    return await findAddress(address);
   },
 });

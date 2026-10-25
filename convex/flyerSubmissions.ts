@@ -359,10 +359,10 @@ export const reviewInternal = internalMutation({
     if (!row || row.status !== "pending" || !row.eventId) throw new Error("Pending flyer was not found");
     if (args.decision === "approved") {
       const occurrences = row.occurrences?.length ? row.occurrences : [{ date: row.date, endDate: null, startTime: row.startTime, endTime: row.endTime }];
-      if (!row.title?.trim() || !row.venueName?.trim() || !row.address?.trim() ||
-          row.latitude === null || row.longitude === null || row.unresolvedFields.length > 0 || !row.reviewedFields.includes("venueCoordinates")) {
-        throw new Error("Resolve or explicitly review every uncertainty and confirm a mappable location before approval");
-      }
+      if (!row.title?.trim() || !row.venueName?.trim() || !row.address?.trim()) throw new Error("Add a title, venue name, and street address before publishing.");
+      if (row.latitude === null || row.longitude === null) throw new Error("Find the address or place the event pin on the map before publishing.");
+      if (!row.reviewedFields.includes("venueCoordinates")) throw new Error("Confirm the event pin location before publishing.");
+      if (row.unresolvedFields.length > 0) throw new Error("Resolve or review every uncertainty before publishing.");
       if (occurrences.length < 1 || occurrences.length > 20) throw new Error("A flyer must have between 1 and 20 event dates");
       for (const occurrence of occurrences) {
         if (!occurrence.date || !validDate(occurrence.date) || !occurrence.startTime || !validTime(occurrence.startTime)) throw new Error("Add a valid date and start time for every event occurrence.");

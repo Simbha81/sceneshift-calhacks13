@@ -34,3 +34,17 @@ export function reviewValuesFromDraft(draft: FlyerDraft): FlyerReviewValues {
 export function syncReviewValues(current: FlyerReviewValues, incoming: FlyerReviewValues, hasUnsavedChanges: boolean) {
   return hasUnsavedChanges ? current : incoming;
 }
+
+export function clearLocationReview(values: FlyerReviewValues, clearPoint: boolean): FlyerReviewValues {
+  return { ...values, ...(clearPoint ? { latitude: "", longitude: "" } : {}),
+    reviewedFields: values.reviewedFields.filter(key => key !== "venueCoordinates") };
+}
+
+export function publicationIssue(values: FlyerReviewValues): string | null {
+  if (!values.title.trim() || !values.venueName.trim() || !values.address.trim()) return "Add a title, venue name, and street address before publishing.";
+  if (!values.latitude || !values.longitude || !Number.isFinite(Number(values.latitude)) || !Number.isFinite(Number(values.longitude))) return "Find the address or tap the map to place the event pin before publishing.";
+  if (!values.reviewedFields.includes("venueCoordinates")) return "Check the pin and confirm the event location before publishing.";
+  if (values.unresolvedFields.length) return "Resolve or review each item under Needs confirmation before publishing.";
+  if (values.occurrences.some(item => !item.date || !item.startTime)) return "Add a date and start time for every event occurrence before publishing.";
+  return null;
+}
