@@ -2,6 +2,12 @@
 
 Help people find their place in San Francisco's local culture. SceneShift brings public event listings and moderated flyers into one live map, helping residents and SF transplants explore scenes and communities while giving independent artists, vendors, small businesses, and organizers visibility beyond their existing audiences.
 
+## How we use Convex
+
+Convex stores reviewed events and delivers live map updates through reactive queries.
+File storage, scheduled Claude extraction and protected mutations power flyer review; workflows import listings.
+See [hackathon.md](hackathon.md) for source files, commit history and evidence limits.
+
 ## Hackathon MVP and build order
 1. Deployable React map reading approved Convex records, with pins, event details, source links, and live updates. Functionality before elaborate styling.
 2. Custom Apify **EventPulse** Actor returning genuine, normalized, validated, deduplicated events with source attribution and collection times.
@@ -10,6 +16,9 @@ Help people find their place in San Francisco's local culture. SceneShift brings
 5. Boosts only if the core is stable. Otherwise prioritize testing, demo, and documentation.
 
 **Out of scope:** personalized public accounts, saved profiles, avatars/backgrounds, Scene Buzz, friends/DMs, advanced RSVP/reputation systems, user-created communities, and sophisticated recommendations. Secure importer/moderator authorization remains necessary.
+
+## Figma concept versus implemented app
+Natalia's Figma prototype may include simulated accounts and social interactions to show the future product vision. These interactions remain design concepts; the hackathon app implements account-free discovery, EventPulse data, Claude flyer-to-map, and SceneShift Lite. Do not build account or social backends from the mockup. Preserve direct access to working flows without login. Any concept-only controls included in the coded UI must be labeled as planned or unavailable. Demo and submission materials must identify which interactions work only in Figma.
 
 ## Sponsor targets
 We aim to win every track we enter, explicitly including Claude. Meaningful product use is the priority: Apify supplies trustworthy events; Claude interprets flyers; Convex powers shared state and reactive publishing; Figma supports intentional design, prototyping, and handoff.

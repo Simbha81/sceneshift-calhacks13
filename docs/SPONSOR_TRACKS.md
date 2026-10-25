@@ -56,6 +56,7 @@ Open: exact Best use of Convex criteria and entry requirements.
 
 ### Figma
 Role: intentionally design/prototype and hand off the actual discovery and flyer-review experience.
+Design scope: Natalia's Figma prototype may also retain simulated accounts and social interactions as future-product concepts. These do not establish working account/social functionality or backend sponsor evidence. Demo and submission materials must distinguish Figma-only interactions from implemented app flows; the working app remains account-free.
 - Build usable screens/prototypes tied to the shipped interface and record real iterations.
 - Keep the supplied guide's stage log: ideation, prototyping, handoff, code generation; record which Figma tools and why, approximate minutes, effectiveness 1–5, and how output entered the project. Keep each stage within 200 words.
 - Deliver Figma Slides with the workflow, embedded Figma files/prototypes, code/repository link, and a demo video no longer than three minutes.

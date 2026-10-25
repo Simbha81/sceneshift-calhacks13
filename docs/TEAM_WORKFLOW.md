@@ -15,6 +15,9 @@ E. Boosts only after A–D are stable and submission evidence is ready. Otherwis
 
 Figma design supports the work throughout; elaborate styling does not block the map foundation. Public browsing requires no personalized account. Protected importer/moderator access remains required.
 
+## Figma handoff boundary
+Natalia may retain simulated account and social interactions in the Figma prototype as future-product concepts. Integrate the map, event cards, scene filters, flyer upload and review with the existing React/MapLibre/Convex functions. Do not implement account or social backends from the mockup. Account-free browsing and the complete flyer-to-map flow must remain accessible without a public login. Label any concept-only controls carried into the app as planned or unavailable; do not present simulated social actions as saved data. Distinguish Figma-only interactions from implemented functionality in the demo and submission.
+
 ## Simran
 - [x] React/TypeScript/Vite + MapLibre foundation initialized.
 - [ ] Develop reusable EventPulse Actor with sources, validation, duplicate handling, collection timestamps, and documented output.
