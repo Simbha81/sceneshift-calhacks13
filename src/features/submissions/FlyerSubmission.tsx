@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { useMutation, useQuery } from "convex/react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { CATEGORY_LABELS } from "../../lib/eventDisplay";
@@ -11,7 +11,7 @@ export function FlyerSubmission() {
   const [message, setMessage] = useState("");
   const uploadUrl = useMutation(generateFlyerUploadUrl);
   const submit = useMutation(submitFlyer);
-  async function sendFlyer(event: React.FormEvent) {
+  async function sendFlyer(event: FormEvent) {
     event.preventDefault();
     if (!file) return;
     setUploading(true); setMessage("");
@@ -66,11 +66,10 @@ function DraftCard({ draft, token }: { draft: FlyerDraft; token: string }) {
   const [busy, setBusy] = useState(false);
   const update = useMutation(updateFlyerDraft);
   const review = useMutation(reviewFlyer);
-  function set<K extends keyof typeof values>(key: K, value: (typeof values)[K]) { setValues(v => ({ ...v, [key]: value })); }
   function field<K extends "title" | "description" | "date" | "startTime" | "endTime" | "venueName" | "address" | "category" | "latitude" | "longitude">(key: K, value: string) {
-    setValues(v => ({ ...v, [key]: value, unresolvedFields: v.unresolvedFields.includes(key) ? v.unresolvedFields : v.unresolvedFields }));
+    setValues(v => ({ ...v, [key]: value }));
   }
-  async function save() {
+  async function save(): Promise<boolean> {
     setBusy(true); setNotice("");
     try {
       await update({ moderatorToken: token, submissionId: draft._id,
@@ -81,8 +80,8 @@ function DraftCard({ draft, token }: { draft: FlyerDraft; token: string }) {
         latitude: values.latitude === "" ? null : Number(values.latitude), longitude: values.longitude === "" ? null : Number(values.longitude),
         unresolvedFields: values.unresolvedFields, reviewedFields: values.reviewedFields,
       });
-      setNotice("Draft saved.");
-    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not save draft."); }
+      setNotice("Draft saved.");\n      return true;
+    } catch (error) { setNotice(error instanceof Error ? error.message : "Could not save draft."); return false; }
     finally { setBusy(false); }
   }
   async function decide(decision: "approved" | "rejected") {
@@ -115,7 +114,7 @@ function DraftCard({ draft, token }: { draft: FlyerDraft; token: string }) {
       <label>Street address<input value={values.address} onChange={e => field("address", e.target.value)} /></label>
       <div className="flyer-grid"><label>Latitude<input inputMode="decimal" value={values.latitude} onChange={e => field("latitude", e.target.value)} /></label>
         <label>Longitude<input inputMode="decimal" value={values.longitude} onChange={e => field("longitude", e.target.value)} /></label></div>
-      {values.latitude && values.longitude && <p className="flyer-location-confirm">Confirm these coordinates point to the venue.</p>}
+      <label className="flyer-location-confirm"><input type="checkbox" checked={values.reviewedFields.includes("venueCoordinates")} onChange={() => markReviewed("venueCoordinates")} /> I confirm the coordinates point to this venue.</label>
       <div className="flyer-actions"><button type="button" onClick={save} disabled={busy}>Save corrections</button>
         <button type="button" className="flyer-approve" onClick={() => decide("approved")} disabled={busy}>Approve and publish</button>
         <button type="button" className="flyer-reject" onClick={() => decide("rejected")} disabled={busy}>Reject</button></div>
