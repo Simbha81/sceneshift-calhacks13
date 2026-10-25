@@ -11,6 +11,7 @@
 import type * as apifyApi from "../apifyApi.js";
 import type * as apifyModel from "../apifyModel.js";
 import type * as apifyRead from "../apifyRead.js";
+import type * as apifyReview from "../apifyReview.js";
 import type * as apifyStore from "../apifyStore.js";
 import type * as apifySync from "../apifySync.js";
 import type * as bootstrap from "../bootstrap.js";
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   apifyApi: typeof apifyApi;
   apifyModel: typeof apifyModel;
   apifyRead: typeof apifyRead;
+  apifyReview: typeof apifyReview;
   apifyStore: typeof apifyStore;
   apifySync: typeof apifySync;
   bootstrap: typeof bootstrap;

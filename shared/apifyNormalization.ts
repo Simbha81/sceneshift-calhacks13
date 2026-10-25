@@ -38,18 +38,42 @@ export function canonicalEventUrl(value: unknown): string {
   url.hash = ""; url.searchParams.sort();
   return url.href;
 }
-function date(value: unknown): string | null {
+function date(value: unknown, timezone?: string): string | null {
   const text = str(value, 100);
-  // Do not let Date.parse silently interpret a local time using server UTC.
-  if (!text || !/T.*(?:Z|[+-]\d{2}:?\d{2})$/i.test(text) || !Number.isFinite(Date.parse(text))) return null;
-  return new Date(text).toISOString();
+  if (!text) return null;
+  if (/T.*(?:Z|[+-]\d{2}:?\d{2})$/i.test(text)) {
+    return Number.isFinite(Date.parse(text)) ? new Date(text).toISOString() : null;
+  }
+  // Interpret local timestamps only with an explicitly supplied source timezone.
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(text);
+  if (!match || !timezone) return null;
+  const [, year, month, day, hour, minute, second = "00"] = match;
+  const wall = Date.UTC(+year, +month - 1, +day, +hour, +minute, +second);
+  const expected = `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+  if (new Date(wall).toISOString().slice(0, 19) !== expected) return null;
+  const formatter = new Intl.DateTimeFormat("en-US", { timeZone: timezone, year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+  const partsAt = (ms: number) => Object.fromEntries(formatter.formatToParts(ms).map(p => [p.type, p.value]));
+  const localMs = (ms: number) => { const p = partsAt(ms); return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second); };
+  const candidates = new Set<number>();
+  for (const hours of [-36, -24, -12, 0, 12, 24, 36]) {
+    const probe = wall + hours * 3600000;
+    const candidate = wall - (localMs(probe) - probe);
+    if (localMs(candidate) === wall) candidates.add(candidate);
+  }
+  // Reject DST gaps and repeated local times rather than choosing an offset.
+  return candidates.size === 1 ? new Date([...candidates][0]).toISOString() : null;
+}
+function coordinate(value: unknown, bound: number): number | null {
+  const numeric = typeof value === "number" ? value : typeof value === "string" && /^[+-]?\d+(?:\.\d+)?$/.test(value.trim()) ? Number(value) : NaN;
+  return Number.isFinite(numeric) && Math.abs(numeric) <= bound ? numeric : null;
 }
 function safeExtra(value: unknown): unknown {
   if (value === null || typeof value === "boolean" || typeof value === "number") return value;
   if (typeof value === "string") return value.slice(0, 2000);
   if (Array.isArray(value)) return value.slice(0, 30).map(safeExtra);
   if (value && typeof value === "object") return Object.fromEntries(Object.entries(value)
-    .filter(([key]) => !/^[_$]|token|secret|password|api.?key|attendees|guests|email|phone/i.test(key))
+    .filter(([key]) => !/^[_$]|token|secret|password|api.?key|attendee|guest|email|phone/i.test(key))
     .slice(0, 50).map(([key, val]) => [key, safeExtra(val)]));
   return null;
 }
@@ -57,11 +81,16 @@ export function normalizeActorItem(value: unknown, importedAt: string) {
   const outer = object(value);
   if (JSON.stringify(outer).length > 60000) throw new Error("Event exceeds import size limit");
   const item = outer.event ? object(outer.event) : outer;
+  const extra = item.extra && typeof item.extra === "object" && !Array.isArray(item.extra) ? item.extra as Record<string, unknown> : {};
+  if (extra.isOnline === true || item.isOnline === true) throw new Error("Online-only event excluded from physical map");
+  const sourceTimezone = str(item.timezone ?? extra.timezone, 100);
+  const timezone = sourceTimezone ?? "America/Los_Angeles";
+  try { new Intl.DateTimeFormat("en-US", { timeZone: timezone }); } catch { throw new Error("Invalid timezone"); }
   const title = str(item.title, 500);
-  const startAt = date(item.startDateTime ?? item.startAt);
+  const startAt = date(item.startDateTime ?? item.startAt, sourceTimezone ?? undefined);
   if (!title || !startAt) throw new Error("Missing title or unambiguous offset-bearing start date");
   const url = canonicalEventUrl(item.url ?? item.sourceUrl);
-  let endAt = date(item.endDateTime ?? item.endAt);
+  let endAt = date(item.endDateTime ?? item.endAt, sourceTimezone ?? undefined);
   if (endAt && endAt <= startAt) endAt = null;
   const description = str(item.shortDescription ?? item.description) ?? "";
   const source = str(item.source ?? outer.source, 100) ?? new URL(url).hostname;
@@ -71,10 +100,11 @@ export function normalizeActorItem(value: unknown, importedAt: string) {
   const price = item.priceStatus ?? item.priceType;
   const priceStatus = price === "free" || price === "paid" ? price : "unknown";
   const categories = new Set(["music-nightlife", "arts-culture", "markets-shopping", "food-drink", "community-causes", "sports-outdoors", "learning-hobbies", "festivals-other"]);
-  const timezone = str(item.timezone, 100) ?? "America/Los_Angeles";
-  try { new Intl.DateTimeFormat("en-US", { timeZone: timezone }); } catch { throw new Error("Invalid timezone"); }
-  const latitude = typeof item.latitude === "number" && Number.isFinite(item.latitude) && Math.abs(item.latitude) <= 90 ? item.latitude : null;
-  const longitude = typeof item.longitude === "number" && Number.isFinite(item.longitude) && Math.abs(item.longitude) <= 180 ? item.longitude : null;
+  const latitude = coordinate(item.latitude ?? extra.latitude, 90);
+  const longitude = coordinate(item.longitude ?? extra.longitude, 180);
+  const warnings: string[] = [];
+  if (latitude === null || longitude === null) warnings.push("Location unresolved; review before approval");
+  if (priceStatus === "paid" && /^0(?:\.0+)?(?:\s+[A-Z]{3})?$/.test(str(item.priceText, 500) ?? "")) warnings.push("Price status conflicts with zero price; confirm source");
   const event: LocalEvent = { title, description, startAt, endAt, timezone, venueName: venue, address,
     latitude, longitude, categories: Array.isArray(item.categories) ? item.categories.filter((c): c is EventCategory => typeof c === "string" && categories.has(c)) : [],
     tags: Array.isArray(item.tags) ? item.tags.filter((t): t is string => typeof t === "string").slice(0, 20).map(t => t.slice(0, 100)) : [],
@@ -84,5 +114,5 @@ export function normalizeActorItem(value: unknown, importedAt: string) {
     startDateTime: startAt, endDateTime: endAt, venue, priceStatus, priceText: str(item.priceText, 500), url, collectedAt,
     extra: { actorExtra: safeExtra(outer.extra ?? item.extra ?? null), provenance: safeExtra(outer.provenance ?? null),
       collectionTimeBasis: date(item.collectedAt ?? outer.collectedAt) ? "actor" : "import-time",
-      warnings: latitude === null || longitude === null ? ["Location unresolved; review before approval"] : [] } };
+      warnings } };
 }

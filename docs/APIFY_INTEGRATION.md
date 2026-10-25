@@ -4,7 +4,7 @@ Uses the existing Convex project and `events` table. Actor: `onsra888/sceneshift
 
 ## Setup
 
-Set `APIFY_TOKEN` in the **Convex dashboard → development deployment → Settings → Environment Variables**. It must have access to the Actor, its runs, and datasets. Do not put it in a VITE_ variable, client code, Git, a URL, or chat. The SDK authenticates with a bearer header. `.env.local` identifies the Convex deployment; it is not where deployed functions read secrets.
+Set `APIFY_TOKEN` in the **Convex dashboard → development deployment → Settings → Environment Variables**. It must have access to the Actor, its runs, and datasets. Do not put it in a VITE_ variable, client code, Git, a URL, or chat. The direct REST transport authenticates with a bearer header; credentials never enter URLs. `.env.local` identifies the Convex deployment; it is not where deployed functions read secrets.
 
 Install the repo's locked dependencies, then deploy the backend:
 
@@ -40,7 +40,7 @@ The run must belong to the configured Actor and have succeeded. Dataset reads ar
 
 Public build `0.0.13` was confirmed SUCCEEDED. Its schema requires Eventbrite, Partiful, and Luma caps >=1. **Only maxDoTheBayEvents accepts 0 as unlimited**. The integration follows the actual build rather than passing invalid zero values. Defaults are finite. The schema describes daysAhead as DoTheBay-specific, not a global source date filter, and says Partiful records are dropped by its address filter. These are Actor limitations to fix separately. The Actor still has template README/metadata; customize those before presenting it as a polished reusable Actor.
 
-The SDK sets maxItems=1000 and maxTotalChargeUsd=1 on new runs. These apply only to the corresponding Apify billing models and do not guarantee total compute/nested-Actor costs. Source caps and timeout provide additional bounds. No unrestricted public sync trigger is exposed.
+The integration sets maxItems=1000 and maxTotalChargeUsd=1 on new runs. These apply only to the corresponding Apify billing models and do not guarantee total compute/nested-Actor costs. Source caps and timeout provide additional bounds. No unrestricted public sync trigger is exposed.
 
 ## Storage and review
 
@@ -86,4 +86,27 @@ Checks: `pnpm typecheck`, `pnpm test`, `pnpm test:backend`, `pnpm build`.
 
 ## Current verification
 
-Development deployment succeeded; existing records remain compatible and the public read query returns them. All 13 lifecycle/visibility tests and 5 new backend/normalization tests pass, plus TypeScript and production build. `apifyApi:inspect` reports tokenConfigured=false in the development deployment. No paid Actor run was started and no real Actor dataset was imported. Live output compatibility, source success, and end-to-end sync remain unverified until the server token is configured. The actual Actor build's input schema was inspected publicly; its output is still not assumed to match merely because the build succeeded.
+Development deployment is live on `bold-lobster-565`. The safe connection check returns HTTP 200 with the Actor accessible. The SDK transport failed without an HTTP response in this runtime; start, polling, and dataset reads now use server-side fetch with bearer authentication. No transport automatically retries a start POST.
+
+### Real run and import evidence — October 24, 2026 Pacific
+- Actor: https://apify.com/onsra888/sceneshift-eventpulse
+- New bounded run: `ieoWQtqh2UjhguSoG`, dataset `DF5XJeL4T5OdJTG5N`, SUCCEEDED.
+- Input: one event per exposed source cap, daysAhead 14, SF cities; fetch cap 20.
+- Sync workflow `jd71hhj4751n021107vywhg1418gz98r`: fetched 3, inserted 3, rejected 0, no truncation.
+- Repeat import of the same dataset, workflow `jd7a688gf5yrs8y373evvxeqz58gz55v`: fetched 3, inserted 0, updated 3, rejected 0. No additional paid run for this repeat.
+- Existing owner run `gIo7mEa3dj3HqAaUf`, dataset `FbYcYO2bM9ifg9F5m`, supplied six records. Workflow `jd77btftetdwxmq90rb9ks1cnx8gz9za` inserted the three additional URLs and skipped three older overlaps.
+- Six distinct imported URLs now exist across Eventbrite, Luma, and DoTheBay. No Partiful or Funcheap success is established by these datasets.
+- New Actor output includes local Eventbrite times with a source timezone under extra. The importer converts those times to UTC only with an explicit valid IANA zone, rejects DST gaps/repeated times, and reads nested numeric/string coordinates without geocoding or inventing them.
+- DoTheBay records have unresolved coordinates and remain pending. SF Music Day has paid status paired with a zero price, is flagged, and remains pending. Its organizer confirms free admission: https://intermusicsf.org/sf-music-day/ .
+- UNDSCVRD Golden Hour Night Market was checked against https://luma.com/raipa01b and https://www.undiscoveredsf.com/2026-undiscovered-sf-social-media-kit . Date/time (October 24, 4–10 PM Pacific), free price, and address (330 Ritch St) agree. Coordinates come from Luma and have not been independently surveyed. Approved through the internal admin mutation; `events:listApproved` returns it. No ticket-availability or attendance claim is made.
+- Browser rendering of this new pin still needs visual confirmation. The existing hosted frontend subscribes to this development backend, so a frontend redeploy is not needed for this backend-only update.
+
+### Admin review
+`convex/apifyReview.ts` adds internal-only approval with current collectedAt, source evidence URLs, and review notes. It refuses rejected records, unresolved warnings/coordinates, expired records, and stale review attempts. It stores review evidence and recomputes mapEndsAt. Replaying the same reviewed crawl preserves approval evidence. This is an admin CLI/dashboard path, not a completed browser moderator interface.
+
+```sh
+npx convex run apifyApi:recentRuns '{}'
+npx convex run apifyReview:approve '{"eventId":"CONVEX_EVENT_ID","expectedCollectedAt":"EXACT_STORED_TIMESTAMP","evidenceUrls":["https://original-source.example/event"],"notes":"Actual source checks performed"}'
+```
+
+Verification: TypeScript and eight backend/normalization/transport tests pass. Synthetic fixtures stay in tests and were not seeded. The original SDK attempt failed before creating a new run, as verified by the recent-run list before the successful REST start.

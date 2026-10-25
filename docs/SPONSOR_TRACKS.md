@@ -3,7 +3,9 @@
 ## Team intent
 Win every track we enter, including Claude's. Each integration must solve a real product need, be shown in the working demo, and satisfy the exact challenge we apply for. This file is the durable checkpoint for coding assistants and teammates.
 
-Status October 24: local React/Vite + MapLibre foundation renders the SF basemap and reads the connected Convex approved-events query. Two manually reviewed recurring market occurrences were imported. Simran confirmed pin/card selection, details/source links, category filtering, and Fit events work. Repeat-bootstrap duplicate prevention and live status changes in two independent SDK subscription clients passed. Browser-specific two-session verification, Actor ingestion, Claude extraction, hosted deployment, and Figma workflow evidence remain outstanding.
+Foundation checkpoint October 24 (before EventPulse integration): local React/Vite + MapLibre foundation renders the SF basemap and reads the connected Convex approved-events query. Two manually reviewed recurring market occurrences were imported. Simran confirmed pin/card selection, details/source links, category filtering, and Fit events work. Repeat-bootstrap duplicate prevention and live status changes in two independent SDK subscription clients passed. Browser-specific two-session verification, Actor ingestion, Claude extraction, hosted deployment, and Figma workflow evidence remain outstanding.
+
+Latest integration checkpoint: EventPulse REST start/poll/pagination and URL-keyed import passed against real cloud data. Reimport inserted zero duplicate records; an admin-reviewed imported Luma record is returned by the live map query. See APIFY_INTEGRATION.md for run IDs and pending data-quality gaps. Claude runtime and Figma evidence are still outstanding.
 
 ## Sources and verification
 - Official event overview: https://cal-hacks-13-0.devpost.com/ (checked October 23, 2026).
@@ -25,7 +27,7 @@ Role: EventPulse supplies real event information to the app.
 - Validate dates, resolve locations, deduplicate records, retain source URLs and collection times, and report failed/uncertain records.
 - Repeat import does not create duplicate map events.
 Evidence to retain: Actor URL, run ID, dataset sample, original source comparisons, and successful import result.
-Current evidence: none implemented.
+Current evidence: public Actor build 0.0.13; new cloud run ieoWQtqh2UjhguSoG succeeded and imported 3 records; reimport inserted 0 duplicates. An earlier owner dataset adds 3 additional distinct URLs across Eventbrite, Luma, and DoTheBay. One organizer-checked Luma record is approved and returned by the live map query; unresolved data stays pending. See APIFY_INTEGRATION.md for IDs, source comparisons, transport/normalization fixes, and remaining gaps. Browser pin rendering, Partiful/Funcheap coverage, full Actor quality, and exact judging requirements remain unverified.
 Open: verify Best use of Apify and Best Actor requirements, submission visibility, entry method, and deadlines.
 
 ### Claude

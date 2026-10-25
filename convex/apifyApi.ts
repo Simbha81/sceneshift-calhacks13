@@ -1,18 +1,34 @@
 "use node";
-import { ApifyClient } from "apify-client";
 import { internalAction, env } from "./_generated/server";
 import { v } from "convex/values";
 import { actorInput } from "./apifyModel";
 import { validateActorInput } from "../shared/apifyNormalization";
 const ACTOR_ID = "6sdtaCC2do1B7febX";
-function client() {
-  if (!env.APIFY_TOKEN?.trim()) throw new Error("APIFY_TOKEN is not configured in the Convex server environment");
-  // No transport retry on POST: a lost response could otherwise start two paid runs.
-  return new ApifyClient({ token: env.APIFY_TOKEN.trim(), maxRetries: 0, timeoutSecs: 30 });
+type ActorRun = { id: string; actId: string; status: string; defaultDatasetId?: string; startedAt?: string };
+async function request(path: string, init?: RequestInit): Promise<Response> {
+  const token = env.APIFY_TOKEN?.trim();
+  if (!token) throw new Error("APIFY_TOKEN is not configured in the Convex server environment");
+  let response: Response;
+  try {
+    response = await fetch(`https://api.apify.com/v2/${path}`, {
+      ...init, headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(30000),
+    });
+  } catch { throw new Error("Apify network request failed; inspect recent runs before retrying a start"); }
+  if (!response.ok) {
+    const status = response.status;
+    await response.body?.cancel();
+    throw new Error(`Apify API returned HTTP ${status}`);
+  }
+  return response;
 }
-function failure(operation: string): never {
-  // Do not propagate SDK errors, response bodies, request headers, or tokens.
-  throw new Error(`Apify ${operation} failed. Check server token permissions and Actor access in Apify Console.`);
+async function data<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await request(path, init);
+  try { return ((await response.json()) as { data: T }).data; }
+  catch { throw new Error("Apify returned an invalid JSON response"); }
+}
+function validateRunId(runId: string) {
+  if (!/^[a-zA-Z0-9]{1,64}$/.test(runId)) throw new Error("Invalid run ID");
 }
 const runResult = v.object({ runId: v.string(), status: v.string(), datasetId: v.union(v.string(), v.null()) });
 export const inspect = internalAction({
@@ -48,42 +64,51 @@ export const inspect = internalAction({
     }
   },
 });
+export const recentRuns = internalAction({
+  args: {}, returns: v.array(v.object({ runId: v.string(), status: v.string(), datasetId: v.union(v.string(), v.null()), startedAt: v.union(v.string(), v.null()) })),
+  handler: async () => {
+    const result = await data<{ items: ActorRun[] }>(`acts/${ACTOR_ID}/runs?limit=10&desc=true`);
+    return result.items.map(run => ({ runId: run.id, status: run.status, datasetId: run.defaultDatasetId ?? null, startedAt: run.startedAt ?? null }));
+  },
+});
 export const startRun = internalAction({
   args: { input: actorInput }, returns: runResult,
   handler: async (_ctx, { input }) => {
-    const normalized = validateActorInput(input);
-    const api = client();
-    try {
-      const run = await api.actor(ACTOR_ID).start(normalized, { timeout: 300, maxItems: 1000, maxTotalChargeUsd: 1 });
-      return { runId: run.id, status: run.status, datasetId: run.defaultDatasetId ?? null };
-    } catch { return failure("start (request outcome may be unknown; inspect recent runs before restarting)"); }
+    // Never retry POST automatically: its outcome may be unknown after a network error.
+    const run = await data<ActorRun>(`acts/${ACTOR_ID}/runs?timeout=300&maxItems=1000&maxTotalChargeUsd=1`,
+      { method: "POST", body: JSON.stringify(validateActorInput(input)) });
+    return { runId: run.id, status: run.status, datasetId: run.defaultDatasetId ?? null };
   },
 });
 export const pollRun = internalAction({
   args: { runId: v.string() }, returns: runResult,
   handler: async (_ctx, { runId }) => {
-    if (!/^[a-zA-Z0-9]{1,64}$/.test(runId)) throw new Error("Invalid run ID");
-    const api = client();
-    try {
-      const initial = await api.run(runId).get();
-      if (!initial || initial.actId !== ACTOR_ID) throw new Error("Wrong Actor");
-      const run = await api.run(runId).waitForFinish({ waitSecs: 20 });
-      return { runId: run.id, status: run.status, datasetId: run.defaultDatasetId ?? null };
-    } catch { return failure("poll"); }
+    validateRunId(runId);
+    const run = await data<ActorRun>(`actor-runs/${runId}?waitForFinish=20`);
+    if (run.actId !== ACTOR_ID) throw new Error("Run belongs to a different Actor");
+    return { runId: run.id, status: run.status, datasetId: run.defaultDatasetId ?? null };
   },
 });
 export const fetchPage = internalAction({
   args: { runId: v.string(), offset: v.number(), limit: v.number() },
   returns: v.object({ items: v.array(v.any()), total: v.number() }),
   handler: async (_ctx, { runId, offset, limit }) => {
-    if (!/^[a-zA-Z0-9]{1,64}$/.test(runId) || !Number.isInteger(offset) || offset < 0 || offset > 10000
+    validateRunId(runId);
+    if (!Number.isInteger(offset) || offset < 0 || offset > 10000
       || !Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error("Invalid dataset page");
-    const api = client();
-    try {
-      const run = await api.run(runId).get();
-      if (!run || run.actId !== ACTOR_ID || run.status !== "SUCCEEDED" || !run.defaultDatasetId) throw new Error("Run not importable");
-      const page = await api.dataset(run.defaultDatasetId).listItems({ limit, offset, clean: true });
-      return { items: page.items, total: page.total };
-    } catch { return failure("dataset read"); }
+    const run = await data<ActorRun>(`actor-runs/${runId}`);
+    if (run.actId !== ACTOR_ID || run.status !== "SUCCEEDED" || !run.defaultDatasetId) throw new Error("Run not importable");
+    if (!/^[a-zA-Z0-9]+$/.test(run.defaultDatasetId)) throw new Error("Invalid dataset ID");
+    const response = await request(`datasets/${run.defaultDatasetId}/items?format=json&clean=true&offset=${offset}&limit=${limit}`);
+    const items: unknown = await response.json();
+    if (!Array.isArray(items) || items.length > limit) throw new Error("Invalid dataset page response");
+    const headerTotal = response.headers.get("x-apify-pagination-total");
+    let total = headerTotal === null ? NaN : Number(headerTotal);
+    if (!Number.isInteger(total) || total < 0) {
+      const dataset = await data<{ itemCount: number }>(`datasets/${run.defaultDatasetId}`);
+      total = dataset.itemCount;
+    }
+    if (!Number.isInteger(total) || total < offset + items.length) throw new Error("Invalid dataset total");
+    return { items, total };
   },
 });
