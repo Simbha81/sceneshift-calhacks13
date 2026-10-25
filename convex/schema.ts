@@ -8,6 +8,12 @@ const category = v.union(
   v.literal("food-drink"), v.literal("community-causes"), v.literal("sports-outdoors"),
   v.literal("learning-hobbies"), v.literal("festivals-other"),
 );
+const flyerOccurrence = v.object({
+  date: v.union(v.string(), v.null()),
+  endDate: v.union(v.string(), v.null()),
+  startTime: v.union(v.string(), v.null()),
+  endTime: v.union(v.string(), v.null()),
+});
 const schema = defineSchema({
   events: defineTable(eventValidator.extend(importedFields))
     .index("by_url", ["url"])
@@ -34,6 +40,8 @@ const schema = defineSchema({
     reviewedFields: v.array(v.string()),
     extractionNotes: v.string(),
     eventId: v.optional(v.id("events")),
+    eventIds: v.optional(v.array(v.id("events"))),
+    occurrences: v.optional(v.array(flyerOccurrence)),
     createdAt: v.number(),
     reviewedAt: v.optional(v.number()),
   }).index("by_status_createdAt", ["status", "createdAt"]),

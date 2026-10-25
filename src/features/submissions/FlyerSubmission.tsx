@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useAction, useMutation } from "convex/react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { CATEGORY_LABELS } from "../../lib/eventDisplay";
-import { generateFlyerUploadUrl, listPendingFlyers, reviewFlyer, submitFlyer, updateFlyerDraft, type FlyerDraft } from "../../lib/api";
+import { generateFlyerUploadUrl, listPendingFlyers, reviewFlyer, submitFlyer, updateFlyerDraft, type FlyerDraft, type FlyerOccurrence } from "../../lib/api";
 import "./FlyerSubmission.css";
 
 export function FlyerSubmission() {
@@ -73,8 +73,10 @@ export function FlyerSubmission() {
 
 function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: string; onRefresh: () => void }) {
   const [values, setValues] = useState(() => ({
-    title: draft.title ?? "", description: draft.description ?? "", date: draft.date ?? "",
-    startTime: draft.startTime ?? "", endTime: draft.endTime ?? "", venueName: draft.venueName ?? "",
+    title: draft.title ?? "", description: draft.description ?? "",
+    occurrences: (draft.occurrences?.length ? draft.occurrences : [{ date: draft.date, endDate: null, startTime: draft.startTime, endTime: draft.endTime }])
+      .map(item => ({ date: item.date ?? "", endDate: item.endDate ?? "", startTime: item.startTime ?? "", endTime: item.endTime ?? "" })),
+    venueName: draft.venueName ?? "",
     address: draft.address ?? "", category: draft.category ?? "", latitude: draft.latitude?.toString() ?? "",
     longitude: draft.longitude?.toString() ?? "", unresolvedFields: [...draft.unresolvedFields],
     reviewedFields: [...draft.reviewedFields],
@@ -83,15 +85,25 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
   const [busy, setBusy] = useState(false);
   const update = useAction(updateFlyerDraft);
   const review = useAction(reviewFlyer);
-  function field<K extends "title" | "description" | "date" | "startTime" | "endTime" | "venueName" | "address" | "category" | "latitude" | "longitude">(key: K, value: string) {
+  function field<K extends "title" | "description" | "venueName" | "address" | "category" | "latitude" | "longitude">(key: K, value: string) {
     setValues(v => ({ ...v, [key]: value }));
+  }
+  function occurrenceField(index: number, key: keyof FlyerOccurrence, value: string) {
+    setValues(v => ({ ...v, occurrences: v.occurrences.map((item, i) => i === index ? { ...item, [key]: value } : item) }));
+  }
+  function addOccurrence() {
+    setValues(v => v.occurrences.length >= 20 ? v : { ...v, occurrences: [...v.occurrences, { date: "", endDate: "", startTime: "", endTime: "" }] });
+  }
+  function removeOccurrence(index: number) {
+    setValues(v => v.occurrences.length <= 1 ? v : { ...v, occurrences: v.occurrences.filter((_, i) => i !== index) });
   }
   async function save(): Promise<boolean> {
     setBusy(true); setNotice("");
     try {
       await update({ moderatorToken: token, submissionId: draft._id,
         title: values.title.trim() || null, description: values.description.trim() || null,
-        date: values.date || null, startTime: values.startTime || null, endTime: values.endTime || null,
+        date: values.occurrences[0]?.date || null, startTime: values.occurrences[0]?.startTime || null, endTime: values.occurrences[0]?.endTime || null,
+        occurrences: values.occurrences.map(item => ({ date: item.date || null, endDate: item.endDate || null, startTime: item.startTime || null, endTime: item.endTime || null })),
         venueName: values.venueName.trim() || null, address: values.address.trim() || null,
         category: values.category ? values.category as FlyerDraft["category"] : null,
         latitude: values.latitude === "" ? null : Number(values.latitude), longitude: values.longitude === "" ? null : Number(values.longitude),
@@ -115,19 +127,30 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
       reviewedFields: v.reviewedFields.includes(key) ? v.reviewedFields : [...v.reviewedFields, key] }));
   }
   const unresolved = [...new Set(values.unresolvedFields)];
+  const noteParts = draft.extractionNotes.split(/(https:\/\/[^\s)]+)/g);
   return <article className="flyer-draft">
     <div className="flyer-draft-preview">{draft.imageUrl && <a href={draft.imageUrl} target="_blank" rel="noreferrer"><img src={draft.imageUrl} alt="Submitted event flyer" /></a>}</div>
     <div className="flyer-draft-fields">
       <div className="flyer-draft-top"><h4>Flyer review</h4><span data-state={draft.extractionStatus}>{draft.extractionStatus}</span></div>
-      {draft.extractionNotes && <p className="flyer-note">{draft.extractionNotes}</p>}
+      {draft.extractionNotes && <p className="flyer-note">{noteParts.map((part, index) => part.startsWith("https://")
+        ? <a key={index} href={part} target="_blank" rel="noreferrer">{part}</a> : part)}</p>}
       {unresolved.length > 0 && <div className="flyer-unresolved"><strong>Needs confirmation</strong>
-        {unresolved.map(key => <label key={key}><input type="checkbox" checked={false} onChange={() => markReviewed(key)} /> I reviewed {key}</label>)}</div>}
+        {unresolved.map(key => <label key={key}><input type="checkbox" checked={false} onChange={() => markReviewed(key)} /> I reviewed {key === "date" ? "all event dates" : key}</label>)}</div>}
       <label>Title<input value={values.title} onChange={e => field("title", e.target.value)} /></label>
       <label>Description<textarea rows={3} value={values.description} onChange={e => field("description", e.target.value)} /></label>
-      <div className="flyer-grid"><label>Date<input type="date" value={values.date} onChange={e => field("date", e.target.value)} /></label>
-        <label>Start time<input type="time" value={values.startTime} onChange={e => field("startTime", e.target.value)} /></label>
-        <label>End time <small>optional</small><input type="time" value={values.endTime} onChange={e => field("endTime", e.target.value)} /></label>
-        <label>Category<select value={values.category} onChange={e => field("category", e.target.value)}><option value="">Unconfirmed</option>
+      <section className="flyer-occurrences" aria-label="Event dates">
+        <div className="flyer-occurrences-heading"><div><strong>Event dates</strong><small>Separate dates become separate event listings. Use an end date only for one continuous multi-day event.</small></div>
+          <button type="button" onClick={addOccurrence} disabled={busy || values.occurrences.length >= 20}>Add a date</button></div>
+        {values.occurrences.map((item, index) => <div className="flyer-occurrence" key={index}>
+          <div className="flyer-occurrence-heading"><strong>{values.occurrences.length > 1 ? `Occurrence ${index + 1}` : "Date and time"}</strong>
+            {values.occurrences.length > 1 && <button type="button" onClick={() => removeOccurrence(index)} disabled={busy}>Remove</button>}</div>
+          <div className="flyer-grid"><label>Date<input type="date" value={item.date} onChange={e => occurrenceField(index, "date", e.target.value)} /></label>
+            <label>End date <small>continuous event only</small><input type="date" value={item.endDate} min={item.date || undefined} onChange={e => occurrenceField(index, "endDate", e.target.value)} /></label>
+            <label>Start time<input type="time" value={item.startTime} onChange={e => occurrenceField(index, "startTime", e.target.value)} /></label>
+            <label>End time <small>optional</small><input type="time" value={item.endTime} onChange={e => occurrenceField(index, "endTime", e.target.value)} /></label></div>
+        </div>)}
+      </section>
+      <div className="flyer-grid"><label>Category<select value={values.category} onChange={e => field("category", e.target.value)}><option value="">Unconfirmed</option>
           {Object.entries(CATEGORY_LABELS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label></div>
       <label>Venue name<input value={values.venueName} onChange={e => field("venueName", e.target.value)} /></label>
       <label>Street address<input value={values.address} onChange={e => field("address", e.target.value)} /></label>

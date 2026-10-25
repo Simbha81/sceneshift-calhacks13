@@ -8,6 +8,7 @@ const category = v.union(
   v.literal("learning-hobbies"), v.literal("festivals-other"),
 );
 const nullableText = v.union(v.string(), v.null());
+const flyerOccurrence = v.object({ date: nullableText, endDate: nullableText, startTime: nullableText, endTime: nullableText });
 function checkModerator(token: string) {
   if (!env.SCENESHIFT_MODERATOR_TOKEN || token !== env.SCENESHIFT_MODERATOR_TOKEN) {
     throw new Error("Moderator access denied");
@@ -27,7 +28,7 @@ export const updateDraft = action({
   args: {
     moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"),
     title: nullableText, description: nullableText, date: nullableText, startTime: nullableText,
-    endTime: nullableText, venueName: nullableText, address: nullableText,
+    endTime: nullableText, occurrences: v.array(flyerOccurrence), venueName: nullableText, address: nullableText,
     category: v.union(category, v.null()), latitude: v.union(v.number(), v.null()),
     longitude: v.union(v.number(), v.null()), unresolvedFields: v.array(v.string()),
     reviewedFields: v.array(v.string()),
