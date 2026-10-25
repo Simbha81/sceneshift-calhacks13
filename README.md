@@ -2,6 +2,12 @@
 
 Help people find their place in San Francisco's local culture. SceneShift brings public event listings and moderated flyers into one live map, helping residents and SF transplants explore scenes and communities while giving independent artists, vendors, small businesses, and organizers visibility beyond their existing audiences.
 
+## How we use Convex
+
+Convex stores reviewed events and delivers live map updates through reactive queries.
+File storage, scheduled Claude extraction and protected mutations power flyer review; workflows import listings.
+See [hackathon.md](hackathon.md) for source files, commit history and evidence limits.
+
 ## Hackathon MVP and build order
 1. Deployable React map reading approved Convex records, with pins, event details, source links, and live updates. Functionality before elaborate styling.
 2. Custom Apify **EventPulse** Actor returning genuine, normalized, validated, deduplicated events with source attribution and collection times.
