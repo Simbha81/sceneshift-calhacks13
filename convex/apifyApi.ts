@@ -20,7 +20,19 @@ export const inspect = internalAction({
   handler: async () => {
     if (!env.APIFY_TOKEN?.trim()) return { tokenConfigured: false, actorAccessible: false, actorName: null, httpStatus: null, errorCategory: "missing-token" };
     try {
-      const actor = await client().actor(ACTOR_ID).get();
+      const response = await fetch(`https://api.apify.com/v2/acts/${ACTOR_ID}`, {
+        headers: { Authorization: `Bearer ${env.APIFY_TOKEN.trim()}` },
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!response.ok) {
+        const status = response.status;
+        await response.body?.cancel();
+        return { tokenConfigured: true, actorAccessible: false, actorName: null, httpStatus: status,
+          errorCategory: status === 401 ? "authentication" : status === 403 ? "permissions"
+            : status === 404 ? "not-found" : status === 429 ? "rate-limit" : "api-error" };
+      }
+      const body = await response.json() as { data?: { name?: string } };
+      const actor = body.data;
       return { tokenConfigured: true, actorAccessible: !!actor, actorName: actor?.name ?? null, httpStatus: actor ? 200 : 404, errorCategory: actor ? null : "not-found" };
     } catch (error: unknown) {
       // Return only fixed categories and numeric status; SDK errors can contain credentials.
