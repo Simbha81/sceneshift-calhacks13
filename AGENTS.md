@@ -28,6 +28,11 @@ Record actual tool use and Figma stages during the build. Never fabricate tests,
 ## Development tools and Claude runtime
 Simran uses Codex for development. Natalie now uses Claude on her own laptop and owns flyer ingestion; do not overlap her feature files. Simran owns EventPulse quality and integration. Keep Claude as the planned in-app flyer extraction API; using Codex to implement the app does not remove that role. Simran reports $50 in Claude API credits; confirm active balance, restrictions, and expiry in the Console and test a real image request before treating API access as verified. Never place an API key in chat, client code, or the repository.
 
+## Event authenticity and availability
+Every published listing needs current evidence that its specific occurrence exists, with a source link and/or traceable review history attached. Preserve source retrieval times, corrections and evidence links. Uploaded flyers retain the original image and require authorized admin approval before publication; AI extraction alone is not verification. Prefer confirmed current-year occurrences for recurring events. Historical editions may supply clearly labeled background only when current evidence confirms the event; never infer this year's dates, venue, prices or availability from an old listing. Label reused background: "Based on a previous edition. Details may have changed."
+
+Sold-out availability is distinct from pending/approved/rejected moderation and must be backed by current source evidence. Confirmed sold-out pins are grey and remain selectable. Completing Actor-to-event availability propagation is future work; do not claim that importer gap is fixed by styling. Pin icons and their glows must shrink as the map zooms out.
+
 ## Implementation discipline
 The repository contains a runnable React/Vite/MapLibre app and a Convex backend with tested real EventPulse ingestion and protected internal review. Verify live state and current GitHub branch before reporting progress. Keep shared transport, Actor output, and Convex schema consistent. Never invent coordinates, dates, prices, or attendance. Track source retrieval time and deduplication identity; imported records preserve collectedAt and flag unresolved fields.
 

@@ -25,6 +25,14 @@ export function EventMap({ events, selected, onSelect, now }: {
         style: import.meta.env.VITE_MAP_STYLE_URL?.trim() || DEFAULT_STYLE,
         center: SF_CENTER, zoom: 11.5, minZoom: 8, maxZoom: 18, renderWorldCopies: false });
       map.current = instance;
+      // Scale the inner button; MapLibre owns the outer marker's positioning transform.
+      const updatePinScale = () => {
+        if (!instance || !container.current) return;
+        const scale = Math.max(0.28, Math.min(1, 2 ** ((instance.getZoom() - 14) / 3)));
+        container.current.style.setProperty("--event-pin-scale", String(scale));
+      };
+      updatePinScale();
+      instance.on("zoom", updatePinScale);
       instance.addControl(new library.NavigationControl(), "top-right");
       instance.on("load", () => { if (!cancelled) { setReady(true); setError(null); } });
       instance.on("error", () => { if (!cancelled) setError("Some map resources could not load. Event details remain available below."); });
@@ -52,7 +60,11 @@ export function EventMap({ events, selected, onSelect, now }: {
         button.setAttribute("aria-label", label); button.title = label;
         button.setAttribute("aria-pressed", String(selected !== null && eventKey(event) === eventKey(selected)));
         button.addEventListener("click", () => onSelectRef.current(event));
-        markers.push(new library.Marker({ element: button, anchor: "center" }).setLngLat([event.longitude, event.latitude]).addTo(map.current));
+        const markerElement = document.createElement("div");
+        markerElement.className = "event-marker";
+        markerElement.dataset.selected = button.getAttribute("aria-pressed") ?? "false";
+        markerElement.append(button);
+        markers.push(new library.Marker({ element: markerElement, anchor: "center" }).setLngLat([event.longitude, event.latitude]).addTo(map.current));
       }
     });
     return () => { cancelled = true; markers.forEach((marker) => marker.remove()); };
