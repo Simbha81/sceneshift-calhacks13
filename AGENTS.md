@@ -36,7 +36,7 @@ The official Devpost overview checked October 23, 2026 lists submission October 
 
 ## Shared backend and team synchronization
 
-Read docs/TEAM_START_HERE.md. Shared demo development deployment: bold-lobster-565; public frontend URL https://bold-lobster-565.convex.cloud. UI-only work runs pnpm dev and must not start convex dev or deploy backend code. Simran is the sole shared-backend publisher during integration. Backend branches test in personal deployments and use PRs; never overwrite the shared deployment from a teammate's feature branch. Coordinate schema, shared event types, package files, App wiring, and shared styles before concurrent edits. Preserve teammates' existing checkouts and databases. PR #3 is merged and main is the shared baseline; quality changes are reviewed separately in PR #5.
+Read docs/TEAM_START_HERE.md. Shared demo development deployment: bold-lobster-565; public frontend URL https://bold-lobster-565.convex.cloud. UI-only work runs pnpm dev and must not start convex dev or deploy backend code. Simran is the sole shared-backend publisher during integration. Backend branches test in personal deployments and use PRs; never overwrite the shared deployment from a teammate's feature branch. Coordinate schema, shared event types, package files, App wiring, and shared styles before concurrent edits. Preserve teammates' existing checkouts and databases. PR #3 and EventPulse quality PR #5 are merged; main is the shared baseline. Actor 0.1.2 is live latest. Natalie’s flyer PR #4 remains separate pending review.
 
 <!-- convex-ai-start -->
 
