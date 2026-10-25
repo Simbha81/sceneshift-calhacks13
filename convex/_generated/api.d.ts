@@ -16,6 +16,8 @@ import type * as apifyStore from "../apifyStore.js";
 import type * as apifySync from "../apifySync.js";
 import type * as bootstrap from "../bootstrap.js";
 import type * as events from "../events.js";
+import type * as flyerSubmissions from "../flyerSubmissions.js";
+import type * as missionVenues from "../missionVenues.js";
 import type * as lib_server from "../lib/server.js";
 
 import type {
@@ -33,6 +35,8 @@ declare const fullApi: ApiFromModules<{
   apifySync: typeof apifySync;
   bootstrap: typeof bootstrap;
   events: typeof events;
+  flyerSubmissions: typeof flyerSubmissions;
+  missionVenues: typeof missionVenues;
   "lib/server": typeof lib_server;
 }>;
 
