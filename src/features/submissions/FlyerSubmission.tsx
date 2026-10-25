@@ -73,8 +73,8 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
   }));
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
-  const update = useMutation(updateFlyerDraft);
-  const review = useMutation(reviewFlyer);
+  const update = useAction(updateFlyerDraft);
+  const review = useAction(reviewFlyer);
   function field<K extends "title" | "description" | "date" | "startTime" | "endTime" | "venueName" | "address" | "category" | "latitude" | "longitude">(key: K, value: string) {
     setValues(v => ({ ...v, [key]: value }));
   }
@@ -89,7 +89,8 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
         latitude: values.latitude === "" ? null : Number(values.latitude), longitude: values.longitude === "" ? null : Number(values.longitude),
         unresolvedFields: values.unresolvedFields, reviewedFields: values.reviewedFields,
       });
-      setNotice("Draft saved.");\n      return true;
+      setNotice("Draft saved.");
+      return true;
     } catch (error) { setNotice(error instanceof Error ? error.message : "Could not save draft."); return false; }
     finally { setBusy(false); }
   }
@@ -99,7 +100,7 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
     setBusy(true);
     try { await review({ moderatorToken: token, submissionId: draft._id, decision }); setNotice(decision === "approved" ? "Approved and published." : "Rejected."); }
     catch (error) { setNotice(error instanceof Error ? error.message : "Review action failed."); }
-    finally { setBusy(false); }
+    finally { setBusy(false); onRefresh(); }
   }
   function markReviewed(key: string) {
     setValues(v => ({ ...v, unresolvedFields: v.unresolvedFields.filter(x => x !== key),
