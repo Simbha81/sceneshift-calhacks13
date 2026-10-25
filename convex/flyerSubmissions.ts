@@ -61,7 +61,7 @@ function eventPatch(draft: {
   const startAt = startLocal ? toUtc(startLocal) : null;
   const endLocal = asLocalIso(draft.date, draft.endTime);
   const endAt = endLocal ? toUtc(endLocal) : null;
-  const event = {
+  const event: LocalEvent = {
     title: draft.title ?? "", description: draft.description ?? "", startAt: startAt ?? "",
     endAt: endAt && startAt && endAt > startAt ? endAt : null, timezone: "America/Los_Angeles",
     venueName: draft.venueName, address: draft.address, latitude: draft.latitude, longitude: draft.longitude,
