@@ -130,8 +130,8 @@ export const extract = internalAction({
     let binary = "";
     for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
     const image = btoa(binary);
-    const prompt = `Read this event flyer. Extract only facts visibly printed on it. Never infer a year, date, time, venue, address, or category. Use null for missing/unclear values. Return only JSON with this exact shape:
-{"title":string|null,"description":string|null,"date":"YYYY-MM-DD"|null,"startTime":"HH:mm"|null,"endTime":"HH:mm"|null,"venueName":string|null,"address":string|null,"category":string|null,"unresolvedFields":string[],"notes":string}
+    const prompt = `Read this event flyer. Extract only facts visibly printed on it. Never infer a year, date, time, venue, address, or category. Use null for missing/unclear values. Return exactly one valid JSON object in this shape, using null for unknown values:
+{"title":null,"description":null,"date":null,"startTime":null,"endTime":null,"venueName":null,"address":null,"category":null,"unresolvedFields":[],"notes":""}
 Allowed categories: ${categories.join(", ")}. Use unresolvedFields from title,description,date,startTime,endTime,venueName,address,category when absent or unclear. Date must include a year to return a date. Times use 24-hour local time. Description should be concise. Category must be one of the listed values.`;
     let response: Response;
     try {
