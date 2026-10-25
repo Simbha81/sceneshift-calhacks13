@@ -7,6 +7,7 @@ import { missionVenueMatch } from "./missionVenues";
 import { eventEnd } from "../src/lib/eventLifecycle";
 import { isMapVisible } from "../src/lib/eventValidation";
 import type { EventCategory, LocalEvent } from "../src/lib/event";
+import { parseClaudeExtraction } from "./flyerParsing";
 
 const category = v.union(
   v.literal("music-nightlife"), v.literal("arts-culture"), v.literal("markets-shopping"),
@@ -42,6 +43,17 @@ function asLocalIso(date: string | null, time: string | null): string | null {
   if (m < 1 || m > 12 || d < 1 || d > 31 || h > 23 || min > 59) return null;
   if (new Date(Date.UTC(y, m - 1, d)).toISOString().slice(0, 10) !== date) return null;
   return `${date}T${time}:00`;
+}
+function endTimeIssue(occurrence: FlyerOccurrence): string | null {
+  if (!occurrence.endTime || !occurrence.date || !occurrence.startTime) return null;
+  const endDate = occurrence.endDate ?? occurrence.date;
+  const startLocal = asLocalIso(occurrence.date, occurrence.startTime);
+  const endLocal = asLocalIso(endDate, occurrence.endTime);
+  const startAt = startLocal ? toUtc(startLocal) : null;
+  const endAt = endLocal ? toUtc(endLocal) : null;
+  if (!startAt || !endAt) return "Enter a valid local start and end date/time.";
+  if (endAt <= startAt) return "End time must be after start time. For an overnight event, set the end date to the following day; if the end is unknown, clear the end time.";
+  return null;
 }
 function toUtc(local: string): string | null {
   const [datePart, clock] = local.split("T");
@@ -173,18 +185,22 @@ Allowed categories: ${categories.join(", ")}. Use unresolvedFields from title,de
         extractionStatus: "failed", extractionNotes: `Claude request failed (${response.status}). Correct the fields manually and review.` });
       return null;
     }
-    const payload = await response.json() as { content?: Array<{ type?: string; text?: string; content?: Array<{ title?: string; url?: string }> }> };
-    const raw = payload.content?.find(part => part.type === "text")?.text ?? "";
+    let payload: { content?: Array<{ type?: string; text?: string; content?: Array<{ title?: string; url?: string }> }> };
+    try { payload = await response.json() as typeof payload; }
+    catch {
+      await ctx.runMutation(internal.flyerSubmissions.saveExtraction, { submissionId,
+        extractionStatus: "failed", extractionNotes: "Claude returned a malformed response body. Correct the fields manually and review." });
+      return null;
+    }
     const sources = [...new Map((payload.content ?? [])
       .filter(part => part.type === "web_search_tool_result")
       .flatMap(part => Array.isArray(part.content) ? part.content : [])
       .filter((source): source is { title: string; url: string } => typeof source.title === "string" && typeof source.url === "string" && source.url.startsWith("https://"))
       .map(source => [source.url, { title: source.title.slice(0, 200), url: source.url.slice(0, 1000) }] as const)).values()];
-    let parsed: Record<string, unknown>;
-    try { parsed = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] ?? ""); }
-    catch {
+    const parsed = parseClaudeExtraction(payload.content);
+    if (!parsed) {
       await ctx.runMutation(internal.flyerSubmissions.saveExtraction, { submissionId,
-        extractionStatus: "failed", extractionNotes: "Claude returned unreadable data. Correct fields manually and review." });
+        extractionStatus: "failed", extractionNotes: "Claude did not return a complete structured event object. Correct fields manually and review." });
       return null;
     }
     const categoryValue = categories.includes(parsed.category as typeof categories[number]) ? parsed.category as typeof categories[number] : null;
@@ -245,7 +261,7 @@ export const markProcessing = internalMutation({
   args: { submissionId: v.id("flyerSubmissions") }, returns: v.null(),
   handler: async (ctx, { submissionId }) => {
     const row = await ctx.db.get(submissionId);
-    if (row?.status === "pending") await ctx.db.patch(submissionId, { extractionStatus: "processing" });
+    if (row?.status === "pending" && row.extractionStatus === "queued") await ctx.db.patch(submissionId, { extractionStatus: "processing" });
     return null;
   },
 });
@@ -261,7 +277,7 @@ export const saveExtraction = internalMutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const row = await ctx.db.get(args.submissionId);
-    if (!row || row.status !== "pending") return null;
+    if (!row || row.status !== "pending" || !["queued", "processing"].includes(row.extractionStatus)) return null;
     const patch = {
       extractionStatus: args.extractionStatus, extractionNotes: args.extractionNotes,
       ...(args.title !== undefined ? { title: args.title } : {}),
@@ -306,6 +322,7 @@ export const updateDraftInternal = internalMutation({
   handler: async (ctx, args) => {
     const row = await ctx.db.get(args.submissionId);
     if (!row || row.status !== "pending") throw new Error("Pending flyer was not found");
+    if (row.extractionStatus === "queued" || row.extractionStatus === "processing") throw new Error("Wait for flyer extraction to finish before editing; your corrections are protected from late extraction results.");
     if (args.latitude !== null && (!Number.isFinite(args.latitude) || args.latitude < -90 || args.latitude > 90)) throw new Error("Invalid latitude");
     if (args.longitude !== null && (!Number.isFinite(args.longitude) || args.longitude < -180 || args.longitude > 180)) throw new Error("Invalid longitude");
     if (args.occurrences.length < 1 || args.occurrences.length > 20) throw new Error("A flyer must have between 1 and 20 event dates");
@@ -315,6 +332,8 @@ export const updateDraftInternal = internalMutation({
       if (occurrence.endDate !== null && (!validDate(occurrence.endDate) || !occurrence.date || occurrence.endDate < occurrence.date)) throw new Error("A date range must end on or after its start date");
       if (occurrence.startTime !== null && !validTime(occurrence.startTime)) throw new Error("Enter valid start times");
       if (occurrence.endTime !== null && !validTime(occurrence.endTime)) throw new Error("Enter valid end times");
+      const timeIssue = endTimeIssue(occurrence);
+      if (timeIssue) throw new Error(timeIssue);
       const key = `${occurrence.date ?? ""}|${occurrence.endDate ?? ""}|${occurrence.startTime ?? ""}|${occurrence.endTime ?? ""}`;
       if (occurrenceKeys.has(key)) throw new Error("Remove duplicate event dates");
       occurrenceKeys.add(key);
@@ -345,6 +364,8 @@ export const reviewInternal = internalMutation({
       for (const occurrence of occurrences) {
         if (!occurrence.date || !validDate(occurrence.date) || !occurrence.startTime || !validTime(occurrence.startTime)) throw new Error("Add a valid date and start time for every event occurrence.");
         if (occurrence.endDate && (!validDate(occurrence.endDate) || occurrence.endDate < occurrence.date)) throw new Error("Check the end date for each multi-day event.");
+        const timeIssue = endTimeIssue(occurrence);
+        if (timeIssue) throw new Error(timeIssue);
         const candidate = { ...eventPatch(row, occurrence), status: "approved" as const, verified: true };
         if (!isMapVisible(candidate, Date.now())) throw new Error("Every occurrence needs valid timing and confirmed coordinates before publishing.");
       }

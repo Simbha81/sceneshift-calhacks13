@@ -1,8 +1,9 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useAction, useMutation } from "convex/react";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { CATEGORY_LABELS } from "../../lib/eventDisplay";
 import { generateFlyerUploadUrl, listPendingFlyers, reviewFlyer, submitFlyer, updateFlyerDraft, type FlyerDraft, type FlyerOccurrence } from "../../lib/api";
+import { reviewValuesFromDraft, syncReviewValues } from "./flyerDraftState";
 import "./FlyerSubmission.css";
 
 export function FlyerSubmission() {
@@ -72,29 +73,29 @@ export function FlyerSubmission() {
 }
 
 function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: string; onRefresh: () => void }) {
-  const [values, setValues] = useState(() => ({
-    title: draft.title ?? "", description: draft.description ?? "",
-    occurrences: (draft.occurrences?.length ? draft.occurrences : [{ date: draft.date, endDate: null, startTime: draft.startTime, endTime: draft.endTime }])
-      .map(item => ({ date: item.date ?? "", endDate: item.endDate ?? "", startTime: item.startTime ?? "", endTime: item.endTime ?? "" })),
-    venueName: draft.venueName ?? "",
-    address: draft.address ?? "", category: draft.category ?? "", latitude: draft.latitude?.toString() ?? "",
-    longitude: draft.longitude?.toString() ?? "", unresolvedFields: [...draft.unresolvedFields],
-    reviewedFields: [...draft.reviewedFields],
-  }));
+  const dirty = useRef(false);
+  const [values, setValues] = useState(() => reviewValuesFromDraft(draft));
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
   const update = useAction(updateFlyerDraft);
   const review = useAction(reviewFlyer);
+  useEffect(() => {
+    setValues(current => syncReviewValues(current, reviewValuesFromDraft(draft), dirty.current));
+  }, [draft]);
   function field<K extends "title" | "description" | "venueName" | "address" | "category" | "latitude" | "longitude">(key: K, value: string) {
+    dirty.current = true;
     setValues(v => ({ ...v, [key]: value }));
   }
   function occurrenceField(index: number, key: keyof FlyerOccurrence, value: string) {
+    dirty.current = true;
     setValues(v => ({ ...v, occurrences: v.occurrences.map((item, i) => i === index ? { ...item, [key]: value } : item) }));
   }
   function addOccurrence() {
+    dirty.current = true;
     setValues(v => v.occurrences.length >= 20 ? v : { ...v, occurrences: [...v.occurrences, { date: "", endDate: "", startTime: "", endTime: "" }] });
   }
   function removeOccurrence(index: number) {
+    dirty.current = true;
     setValues(v => v.occurrences.length <= 1 ? v : { ...v, occurrences: v.occurrences.filter((_, i) => i !== index) });
   }
   async function save(): Promise<boolean> {
@@ -109,6 +110,7 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
         latitude: values.latitude === "" ? null : Number(values.latitude), longitude: values.longitude === "" ? null : Number(values.longitude),
         unresolvedFields: values.unresolvedFields, reviewedFields: values.reviewedFields,
       });
+      dirty.current = false;
       setNotice("Draft saved.");
       return true;
     } catch (error) { setNotice(error instanceof Error ? error.message : "Could not save draft."); return false; }
@@ -123,10 +125,12 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
     finally { setBusy(false); onRefresh(); }
   }
   function markReviewed(key: string) {
+    dirty.current = true;
     setValues(v => ({ ...v, unresolvedFields: v.unresolvedFields.filter(x => x !== key),
       reviewedFields: v.reviewedFields.includes(key) ? v.reviewedFields : [...v.reviewedFields, key] }));
   }
   const unresolved = [...new Set(values.unresolvedFields)];
+  const extractionPending = draft.extractionStatus === "queued" || draft.extractionStatus === "processing";
   const noteParts = draft.extractionNotes.split(/(https:\/\/[^\s)]+)/g);
   return <article className="flyer-draft">
     <div className="flyer-draft-preview">{draft.imageUrl && <a href={draft.imageUrl} target="_blank" rel="noreferrer"><img src={draft.imageUrl} alt="Submitted event flyer" /></a>}</div>
@@ -134,6 +138,8 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
       <div className="flyer-draft-top"><h4>Flyer review</h4><span data-state={draft.extractionStatus}>{draft.extractionStatus}</span></div>
       {draft.extractionNotes && <p className="flyer-note">{noteParts.map((part, index) => part.startsWith("https://")
         ? <a key={index} href={part} target="_blank" rel="noreferrer">{part}</a> : part)}</p>}
+      {extractionPending && <p role="status">Claude is still reading this flyer. Editing unlocks when extraction finishes.</p>}
+      <fieldset className="flyer-editable-fields" disabled={busy || extractionPending}>
       {unresolved.length > 0 && <div className="flyer-unresolved"><strong>Needs confirmation</strong>
         {unresolved.map(key => <label key={key}><input type="checkbox" checked={false} onChange={() => markReviewed(key)} /> I reviewed {key === "date" ? "all event dates" : key}</label>)}</div>}
       <label>Title<input value={values.title} onChange={e => field("title", e.target.value)} /></label>
@@ -147,7 +153,7 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
           <div className="flyer-grid"><label>Date<input type="date" value={item.date} onChange={e => occurrenceField(index, "date", e.target.value)} /></label>
             <label>End date <small>continuous event only</small><input type="date" value={item.endDate} min={item.date || undefined} onChange={e => occurrenceField(index, "endDate", e.target.value)} /></label>
             <label>Start time<input type="time" value={item.startTime} onChange={e => occurrenceField(index, "startTime", e.target.value)} /></label>
-            <label>End time <small>optional</small><input type="time" value={item.endTime} onChange={e => occurrenceField(index, "endTime", e.target.value)} /></label></div>
+            <label>End time <small>optional; blank uses the clearly labeled 3-hour estimate</small><input type="time" value={item.endTime} onChange={e => occurrenceField(index, "endTime", e.target.value)} /></label></div>
         </div>)}
       </section>
       <div className="flyer-grid"><label>Category<select value={values.category} onChange={e => field("category", e.target.value)}><option value="">Unconfirmed</option>
@@ -160,6 +166,7 @@ function DraftCard({ draft, token, onRefresh }: { draft: FlyerDraft; token: stri
       <div className="flyer-actions"><button type="button" onClick={save} disabled={busy}>Save corrections</button>
         <button type="button" className="flyer-approve" onClick={() => decide("approved")} disabled={busy}>Approve and publish</button>
         <button type="button" className="flyer-reject" onClick={() => decide("rejected")} disabled={busy}>Reject</button></div>
+      </fieldset>
       {notice && <p role="status">{notice}</p>}
     </div>
   </article>;

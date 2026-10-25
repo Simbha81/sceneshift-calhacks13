@@ -4,7 +4,7 @@
 **Environment:** Personal Convex development deployment `sceneshift-flyer-demo` (`superb-dogfish-818`)
 **Flyer:** Bassrush presents Eazybaked with rSUN at Public Works, San Francisco
 
-This real-image extraction was run before the latest 2026 default-year and multi-occurrence changes. It confirms the earlier single-event upload and Claude extraction path only; the current prompt and multi-date flow still need a fresh real-flyer check.
+This historical real-image extraction was run before the current 2026 default-year and multi-occurrence changes. It confirms the earlier single-event upload and Claude extraction path only. Do not treat it as a fresh end-to-end result for the current PR changes.
 
 The flyer uploaded successfully, and Claude extraction completed. The submission remains `pending` and is not published to the map.
 
@@ -35,4 +35,18 @@ No field edits have been saved through the reviewer form yet. A reviewer still n
 
 > Flyer upload and extraction work, but a draft still needs human review when key event details are missing. This submission stays pending until someone confirms its date and location.
 
-The test used the personal demo deployment only. No Convex changes were deployed to the shared team backend. The grouped multi-date implementation and latest extraction prompt have not yet been deployed or exercised against a new flyer.
+## Current PR #4 checklist verification
+
+Automated regression coverage on the local PR branch now checks:
+
+- Claude response parsing when search text precedes structured JSON, and explicit failure for malformed or incomplete output.
+- Late extraction cannot overwrite a saved correction, and edits are disabled while extraction is queued or processing.
+- Review form refresh loads extracted values while preserving unsaved edits.
+- End-before-start is rejected, overnight end times can use the following date, and an unknown end time remains blank with the three-hour estimate labeled.
+- Invalid moderator credentials fail; duplicate approval is rejected.
+
+Local verification on 2026-10-24: `pnpm typecheck`, `pnpm test` (15 passed), `pnpm test:backend` (14 passed), `pnpm build`, and `git diff --check` passed.
+
+Fresh live end-to-end verification for this PR revision is still pending on the personal deployment. In particular, single-date, multi-date, and missing-details uploads, reviewer corrections/approval, map pins, and pending/rejected visibility have not been re-run after these changes. Do not deploy this feature branch to the shared team backend. Record each live run here only after it is actually completed.
+
+The prior test used the personal demo deployment only. No Convex changes were deployed to the shared team backend.
