@@ -85,7 +85,8 @@ function DraftCard({ draft, token }: { draft: FlyerDraft; token: string }) {
     finally { setBusy(false); }
   }
   async function decide(decision: "approved" | "rejected") {
-    await save();
+    if (!await save()) return;
+    if (decision === "approved" && !values.reviewedFields.includes("venueCoordinates")) { setNotice("Confirm that the coordinates point to the venue."); return; }
     setBusy(true);
     try { await review({ moderatorToken: token, submissionId: draft._id, decision }); setNotice(decision === "approved" ? "Approved and published." : "Rejected."); }
     catch (error) { setNotice(error instanceof Error ? error.message : "Review action failed."); }
