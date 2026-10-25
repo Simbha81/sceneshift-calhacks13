@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, internalMutation, internalAction, internalQuery, query } from "./_generated/server";
+import { mutation, action, internalMutation, internalAction, internalQuery, query } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { env } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
@@ -232,7 +232,7 @@ export const listPending = query({
   },
 });
 
-export const updateDraft = mutation({
+export const updateDraftInternal = internalMutation({
   args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"),
     title: nullableText, description: nullableText, date: nullableText, startTime: nullableText, endTime: nullableText,
     venueName: nullableText, address: nullableText, category: v.union(category, v.null()),
@@ -243,8 +243,8 @@ export const updateDraft = mutation({
     checkModerator(args.moderatorToken);
     const row = await ctx.db.get(args.submissionId);
     if (!row || row.status !== "pending") throw new Error("Pending flyer was not found");
-    if (args.latitude !== null && (args.latitude < -90 || args.latitude > 90)) throw new Error("Invalid latitude");
-    if (args.longitude !== null && (args.longitude < -180 || args.longitude > 180)) throw new Error("Invalid longitude");
+    if (args.latitude !== null && (!Number.isFinite(args.latitude) || args.latitude < -90 || args.latitude > 90)) throw new Error("Invalid latitude");
+    if (args.longitude !== null && (!Number.isFinite(args.longitude) || args.longitude < -180 || args.longitude > 180)) throw new Error("Invalid longitude");
     const { moderatorToken: _token, submissionId, ...values } = args;
     await ctx.db.patch(submissionId, values);
     const fresh = { ...row, ...values };
@@ -253,7 +253,7 @@ export const updateDraft = mutation({
   },
 });
 
-export const review = mutation({
+export const reviewInternal = internalMutation({
   args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"), decision: v.union(v.literal("approved"), v.literal("rejected")) },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -262,7 +262,7 @@ export const review = mutation({
     if (!row || row.status !== "pending" || !row.eventId) throw new Error("Pending flyer was not found");
     if (args.decision === "approved") {
       if (!row.title?.trim() || !row.date || !row.startTime || !row.venueName?.trim() || !row.address?.trim() ||
-          row.latitude === null || row.longitude === null || row.unresolvedFields.length > 0) {
+          row.latitude === null || row.longitude === null || row.unresolvedFields.length > 0 || !row.reviewedFields.includes("venueCoordinates")) {
         throw new Error("Resolve or explicitly review every uncertainty and confirm a mappable location before approval");
       }
       const startAt = toUtc(asLocalIso(row.date, row.startTime)!);
@@ -273,5 +273,33 @@ export const review = mutation({
       mapEndsAt: decision === "approved" ? eventEnd(eventPatch(row))?.timestamp ?? null : null });
     await ctx.db.patch(args.submissionId, { status: decision, reviewedAt: Date.now() });
     return null;
+  },
+});
+
+export const listPending = action({
+  args: { moderatorToken: v.string() }, returns: v.array(v.any()),
+  handler: async (ctx, { moderatorToken }) => {
+    checkModerator(moderatorToken);
+    return await ctx.runQuery(internal.flyerSubmissions.listPendingInternal, {});
+  },
+});
+export const updateDraft = action({
+  args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"),
+    title: nullableText, description: nullableText, date: nullableText, startTime: nullableText, endTime: nullableText,
+    venueName: nullableText, address: nullableText, category: v.union(category, v.null()),
+    latitude: v.union(v.number(), v.null()), longitude: v.union(v.number(), v.null()),
+    unresolvedFields: v.array(v.string()), reviewedFields: v.array(v.string()) },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    checkModerator(args.moderatorToken);
+    return await ctx.runMutation(internal.flyerSubmissions.updateDraftInternal, args);
+  },
+});
+export const review = action({
+  args: { moderatorToken: v.string(), submissionId: v.id("flyerSubmissions"), decision: v.union(v.literal("approved"), v.literal("rejected")) },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    checkModerator(args.moderatorToken);
+    return await ctx.runMutation(internal.flyerSubmissions.reviewInternal, args);
   },
 });
